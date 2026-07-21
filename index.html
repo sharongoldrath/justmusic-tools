@@ -2483,5 +2483,70 @@ footer{
 
 })();
 </script>
+
+<style>
+#loginOverlay{
+position:fixed;inset:0;z-index:99999;
+display:flex;align-items:center;justify-content:center;
+background:linear-gradient(135deg,#0b0b0b,#171717);
+font-family:inherit;
+}
+#loginCard{
+width:min(420px,92vw);
+background:#151515;
+border:2px solid #fff;
+padding:32px;
+text-align:center;
+box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+#loginCard h1{margin:0 0 10px;color:#fff}
+#loginCard p{color:#cfcfcf}
+#loginCard input{
+width:100%;padding:14px;margin:18px 0;
+background:#0d0d0d;color:#fff;
+border:1px solid #666;font-size:18px;
+}
+#loginCard button{
+width:100%;padding:14px;
+background:#f4ff00;color:#000;
+font-weight:800;border:none;cursor:pointer;
+}
+#loginError{margin-top:12px;color:#ff5c7a;display:none}
+</style>
+
+<div id="loginOverlay">
+  <div id="loginCard">
+    <h1>JUST MUSIC</h1>
+    <p>Interactive Learning Tools</p>
+    <input id="pw" type="password" placeholder="Password">
+    <button onclick="checkPassword()">Enter</button>
+    <div id="loginError">Wrong password</div>
+  </div>
+</div>
+
+<script>
+const PASSWORD="sharon"; // <-- change here
+function unlock(){
+  document.getElementById("loginOverlay").style.display="none";
+  sessionStorage.setItem("jm_unlocked","1");
+}
+function checkPassword(){
+  if(document.getElementById("pw").value===PASSWORD){
+      unlock();
+  }else{
+      document.getElementById("loginError").style.display="block";
+  }
+}
+window.addEventListener("load",()=>{
+ if(sessionStorage.getItem("jm_unlocked")==="1") unlock();
+ const i=document.getElementById("pw");
+ if(i){
+   i.addEventListener("keydown",e=>{
+      if(e.key==="Enter") checkPassword();
+   });
+ }
+});
+</script>
+
 </body>
 </html>
