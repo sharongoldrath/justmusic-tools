@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>מעבר בין שירים — Deck Simulator</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@600;800;900&amp;family=Heebo:wght@300;400;500;700&amp;family=IBM+Plex+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080808;
+  --bg2:#111111;
+
+  --panel:#131313;
+  --panel-raised:#1d1d1d;
+  --line:#3a3a3a;
+
+  --text:#ffffff;
+  --muted:#c6c6c6;
+
+  /* Semantic teaching colors — reserved for meaning */
+  --cyan:#3d7eff;
+  --cyan-dim:#214aa3;
+  --cyan-glow:rgba(61,126,255,.42);
+
+  --amber:#ff7a21;
+  --amber-dim:#9c4412;
+  --amber-glow:rgba(255,122,33,.42);
+
+  --alert:#ff2f73;
+  --alert-dim:#8f1943;
+
+  --hcA:#ff3157;
+  --hcB:#ffc21f;
+  --hcC:#38d46a;
+  --hcD:#5f7cff;
+
+  --chassis:#111111;
+  --chassis-raised:#191919;
+  --chassis-line:#454545;
+
+  --label:#ffffff;
+  --label-dim:#b8b8b8;
+
+  --jm-yellow:#f4ff00;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(900px 500px at 12% -8%,rgba(51,225,234,.10),transparent 60%),
+    radial-gradient(900px 500px at 100% 0%,rgba(255,159,67,.10),transparent 55%),
+    var(--bg);
+  color:var(--text);font-family:'Assistant',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased
+}
+.wrap{max-width:980px;margin:auto;padding:32px 18px 80px}
+h1,h2,h3{font-family:'Rubik',sans-serif;margin:0}.mono{font-family:'IBM Plex Mono',monospace}
+.hero{background:linear-gradient(180deg,var(--panel-raised),var(--panel));border:2px solid var(--line);border-radius:20px;padding:32px 28px 26px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;opacity:.5;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 7px);pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.16em;color:var(--cyan);margin-bottom:14px}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.3}}
+h1{font-size:clamp(26px,4.4vw,42px);font-weight:900;background:linear-gradient(90deg,var(--text),var(--cyan) 120%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:15px;margin-top:10px;max-width:68ch}
+.colorkey{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}.ck-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.ck-swatch{width:12px;height:12px;border-radius:50%}
+section{margin-top:42px}.section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}.section-head h2{font-size:21px}.section-head .idx{font-family:'IBM Plex Mono',monospace;color:var(--muted);font-size:12.5px}.section-head::after{content:"";flex:1;height:1px;background:linear-gradient(to left,var(--line),transparent)}.hint{color:#d2d9e2;font-size:13px;margin-bottom:16px}
+.panel,.diagram-box{background:var(--panel);border:2px solid var(--line);border-radius:16px}.panel{padding:22px}.diagram-box{padding:18px 14px 10px;overflow-x:auto}
+svg text{font-family:'Assistant',sans-serif}.mono-label{font-family:'IBM Plex Mono',monospace;font-weight:600}figcaption{margin-top:10px;text-align:center;color:var(--muted);font-size:12.5px}
+.wave-title{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;color:var(--text);font-family:'Rubik',sans-serif;font-size:14px}.wave-title .wave-icon{color:var(--cyan);font-family:'IBM Plex Mono',monospace;letter-spacing:-2px}
+.point-marker{cursor:pointer}.point-marker .halo{opacity:0;transition:.2s}.point-marker.is-active .halo{opacity:1}
+.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}@media(max-width:640px){.legend-grid{grid-template-columns:1fr}}
+.point-card{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;gap:12px;cursor:pointer;transition:transform .12s,border-color .15s,background .15s,box-shadow .15s;user-select:none}.point-card:hover{transform:translateY(-2px);background:var(--panel-raised);box-shadow:0 8px 18px rgba(0,0,0,.18)}.point-card:active{transform:translateY(1px) scale(.99)}.point-card.is-active{background:var(--panel-raised)}
+.point-flag{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:17px;width:34px;height:34px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;color:#0a0d12}.flag-a{background:var(--hcA)}.flag-b{background:var(--hcB)}.flag-c{background:var(--hcC)}.flag-d{background:var(--hcD)}
+.point-card h3{font-size:14.5px;margin-bottom:3px}.point-card p{margin:0;color:#d2d9e2;font-size:13px}
+.lcd{margin-top:14px;background:#060809;border:2px solid var(--line);border-radius:10px;padding:14px 16px;font-family:'IBM Plex Mono',monospace;color:var(--cyan);font-size:13.5px;display:flex;align-items:center;gap:10px}.lcd .caret{width:8px;height:16px;background:var(--cyan);animation:pulse 1s step-end infinite}
+
+/* FLOW */
+.flow-panel{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:20px;overflow:hidden}
+.flow-stage{position:relative;height:310px;background:#0d1218;border:2px solid var(--line);border-radius:14px;overflow:hidden}
+.flow-grid{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(12.5% - 1px),rgba(255,255,255,.045) calc(12.5% - 1px),rgba(255,255,255,.045) 12.5%)}
+.flow-song{position:absolute;right:5%;left:5%;height:72px}
+.flow-song.sA{top:30px}.flow-song.sB{top:119px}.flow-song.sC{top:208px}
+.flow-name{position:absolute;right:0;top:23px;width:70px;font-family:'Rubik',sans-serif;font-weight:800;text-align:center}
+.flow-wave{position:absolute;right:78px;left:0;top:10px;height:52px;border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,.10)}
+.flow-wave svg{width:100%;height:100%;display:block}
+.flow-role{position:absolute;top:-15px;font-size:10px;color:var(--muted)}
+.flow-ext,.flow-drop{position:absolute;top:10px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;border-radius:8px;pointer-events:none}
+.flow-ext{background:rgba(51,225,234,.17);border:1px solid rgba(51,225,234,.6);color:var(--cyan)}
+.flow-drop{background:rgba(255,159,67,.17);border:1px solid rgba(255,159,67,.65);color:var(--amber)}
+.a-drop{right:26%;width:25%}.b-ext{right:26%;width:25%}.b-drop{right:57%;width:25%}.c-ext{right:57%;width:25%}
+.flow-overlap{position:absolute;width:25%;height:78px;border:2px dashed var(--alert);border-radius:12px;box-shadow:0 0 18px rgba(255,93,162,.15);pointer-events:none}.ov1{right:calc(5% + 26% * .90);top:25px}.ov2{right:calc(5% + 57% * .90);top:114px}
+.flow-arrow{position:absolute;color:var(--alert);font-family:'IBM Plex Mono',monospace;font-size:11px}.fa1{top:103px;right:40%}.fa2{top:192px;right:68%}
+.flow-explain{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.flow-step{background:var(--panel-raised);border:2px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;color:var(--muted)}.flow-step b{display:block;color:var(--text);margin-bottom:4px}
+@media(max-width:700px){.flow-explain{grid-template-columns:1fr}.flow-stage{height:360px}.flow-song.sA{top:35px}.flow-song.sB{top:145px}.flow-song.sC{top:255px}.ov1{top:30px}.ov2{top:140px}.fa1{top:119px}.fa2{top:229px}}
+
+.prep-panel{background:var(--panel);border:1px dashed var(--line);border-radius:16px;padding:18px 20px;margin-bottom:22px}.prep-title{font-size:10.5px;color:var(--muted);text-align:center;margin-bottom:14px}.prep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:700px){.prep-grid{grid-template-columns:1fr}}.prep-item{display:flex;gap:12px;background:var(--panel-raised);border:2px solid var(--line);border-radius:10px;padding:12px 14px}.prep-letter{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;color:var(--muted);width:30px;height:30px;flex:none;border:1.5px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center}.prep-item h4{font-family:'Rubik',sans-serif;font-size:13.5px;margin:0 0 3px}.prep-item p{margin:0;font-size:12px;color:var(--muted)}.prep-arrow{text-align:center;margin-top:14px;font-size:12.5px;color:var(--muted)}
+
+.booth{background:linear-gradient(180deg,var(--chassis-raised),var(--chassis));border:1px solid var(--chassis-line);border-radius:14px;padding:26px 22px;position:relative}.screw{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a5058,#0c0e10 70%)}.tl{top:10px;left:10px}.tr{top:10px;right:10px}.bl{bottom:10px;left:10px}.br{bottom:10px;right:10px}.rig-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.2em;color:#8b929b}
+.sim-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 22px}.btn{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;
+  background:linear-gradient(180deg,#202936,#171e28);color:var(--text);
+  border:2px solid var(--line);border-radius:9px;padding:10px 16px;cursor:pointer;
+  position:relative;overflow:hidden;user-select:none;
+  box-shadow:0 7px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045);
+  transition:transform .12s ease,border-color .15s ease,box-shadow .15s ease,filter .15s ease
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 10px 22px rgba(0,0,0,.28),0 0 14px rgba(51,225,234,.16)}
+.btn:active,.btn.pressed{transform:translateY(1px) scale(.98);filter:brightness(1.18);box-shadow:0 3px 8px rgba(0,0,0,.35),inset 0 2px 6px rgba(0,0,0,.25)}
+.btn:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.btn::after{
+  content:"";position:absolute;left:var(--rx,50%);top:var(--ry,50%);margin:-6px 0 0 -6px;width:12px;height:12px;border-radius:50%;
+  background:rgba(255,255,255,.32);transform:scale(0);opacity:0;pointer-events:none
+}
+.btn.ripple::after{animation:buttonRipple .45s ease-out}
+@keyframes buttonRipple{0%{transform:scale(0);opacity:.45}100%{transform:scale(18);opacity:0}}.btn.primary{border-color:var(--cyan);box-shadow:0 0 14px var(--cyan-glow),inset 0 1px 0 rgba(255,255,255,.08)}
+.speed-btn.is-selected{border-color:var(--amber);color:var(--amber);box-shadow:0 0 14px rgba(255,159,67,.22)}.bar-readout{margin-inline-start:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--cyan);background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:8px 14px}
+.decks{display:flex;justify-content:center;align-items:flex-start;gap:34px;flex-wrap:wrap;margin-bottom:8px}.deck{display:flex;flex-direction:column;align-items:center;width:200px}.deck-label{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:12px;text-align:center}.deck-label b{display:block;font-size:14px;color:var(--text)}.platter{position:relative;width:172px;height:172px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#262b31,#101317 72%);box-shadow:0 14px 34px rgba(0,0,0,.6),inset 0 0 0 5px #101317}.vinyl{position:absolute;inset:9px;border-radius:50%;background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 1.5px,transparent 1.5px 7px),repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0 1.5px,transparent 1.5px 7px),radial-gradient(circle at center,#1a1e23,#0d1013 80%);display:flex;align-items:center;justify-content:center}.rim-dot{position:absolute;top:6px;left:50%;width:6px;height:6px;border-radius:50%}.label-center{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#0a0d12}.label-out{background:var(--amber)}.label-in{background:var(--cyan)}.platter-gloss{position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.14),transparent 46%)}.jog-hand{position:absolute;top:-14px;right:-2px;opacity:0;transition:.2s;pointer-events:none}.jog-hand.active{opacity:1}
+.deck-row{display:flex;align-items:center;gap:10px}.tempo-fader{display:flex;flex-direction:column;align-items:center;gap:6px}.tempo-label{font-size:8.5px;color:#8b929b}.tempo-track{position:relative;width:16px;height:120px;background:var(--chassis);border:1px solid var(--chassis-line);border-radius:4px}.tempo-mark{position:absolute;left:2px;right:2px;top:50%;height:3px;background:#c94b4b}
+.led-meter{position:relative;width:100%;height:16px;border-radius:5px;background:var(--panel);border:2px solid var(--line);margin-top:14px;overflow:hidden}.led-fill{position:absolute;top:0;bottom:0;right:0;transition:width .05s}.led-fill.out{background:linear-gradient(to left,var(--amber),#9c405c)}.led-fill.in{background:linear-gradient(to left,var(--cyan),#4a3aa8)}.pct{margin-top:6px;font-size:12px;color:var(--muted)}.pct b{color:var(--text);font-family:'IBM Plex Mono',monospace}
+.mini-mixer{display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 12px;min-width:150px;align-self:center}.mm-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}.mm-row{display:flex;align-items:center;gap:8px}.mm-band-label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--muted);width:32px;text-align:center}.low-label{color:var(--alert)}.mm-spacer{width:18px}.knob{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#232b34,#0d1116 75%);border:2px solid var(--line);position:relative}.knob .ptr{position:absolute;top:3px;left:50%;width:2px;height:10px;transform:translateX(-50%);transform-origin:bottom center;background:var(--muted)}.knob.out .ptr{background:var(--amber)}.knob.in .ptr{background:var(--cyan)}.mm-swap{font-size:15px;color:var(--alert);opacity:.35;transition:.2s}.mm-swap.on{opacity:1;transform:scale(1.3) rotate(180deg)}
+.channel-strip{display:flex;justify-content:center;align-items:flex-end;gap:46px;margin:24px 0 8px}.fader-unit{display:flex;flex-direction:column;align-items:center;gap:8px}.fader-slot{position:relative;width:46px;height:150px;background:var(--panel);border:2px solid var(--line);border-radius:8px}.fader-groove{position:absolute;left:50%;top:12px;bottom:12px;width:4px;background:var(--line);transform:translateX(-50%)}.fader-cap{position:absolute;left:50%;width:38px;height:16px;border-radius:4px;transform:translateX(-50%);transition:bottom .05s}.fader-cap.out{background:linear-gradient(var(--amber),#9c405c)}.fader-cap.in{background:linear-gradient(var(--cyan),#4a3aa8)}.fader-num{font-size:15px;background:var(--panel-raised);border:2px solid var(--line);border-radius:6px;width:26px;height:22px;display:flex;align-items:center;justify-content:center}.fader-name{font-size:11.5px;color:var(--muted)}
+.fx-module{max-width:340px;margin:8px auto 4px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 16px}.fx-title{font-size:10.5px;color:var(--muted);text-align:center;margin-bottom:12px}.fx-row{display:flex;align-items:center;justify-content:center;gap:26px}.fx-toggle{
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;width:64px;height:34px;
+  border-radius:8px;background:linear-gradient(180deg,#202936,#171e28);color:var(--muted);
+  border:2px solid var(--line);cursor:pointer;transition:transform .12s,filter .15s,border-color .15s,box-shadow .15s
+}
+.fx-toggle:hover{transform:translateY(-2px);border-color:var(--alert);box-shadow:0 0 14px rgba(255,93,162,.18)}
+.fx-toggle:active{transform:translateY(1px) scale(.96);filter:brightness(1.2)}
+.fx-toggle:focus-visible{outline:2px solid var(--alert);outline-offset:3px}.fx-toggle.on{color:var(--alert);border-color:var(--alert)}.knob.big{width:42px;height:42px}.knob.big .ptr{height:15px;background:var(--alert)}
+.timeline{position:relative;height:32px;border-radius:8px;overflow:hidden;background:var(--panel);border:2px solid var(--line);margin-bottom:20px}.bar-seg{position:absolute;top:0;bottom:0;width:25%;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted)}.bar-seg:nth-child(1){left:0}.bar-seg:nth-child(2){left:25%}.bar-seg:nth-child(3){left:50%}.bar-seg:nth-child(4){left:75%}.fx-zone{position:absolute;inset:0 0 0 auto;width:10%;background:rgba(255,93,162,.22)}.swap-mark{position:absolute;top:0;bottom:0;right:50%;width:2px;background:var(--alert)}.playhead{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--text);right:100%}
+input[type=range]{width:100%;margin:20px 0}.events{display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}.badge{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:5px 10px;border-radius:6px;background:var(--panel);color:var(--muted);border:2px solid var(--line);opacity:.45}.badge.on{opacity:1;color:var(--alert);border-color:var(--alert)}.caption{background:#060809;border:2px solid var(--line);border-radius:12px;padding:16px 18px}.caption .tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--cyan);background:rgba(51,225,234,.1);padding:2px 8px;border-radius:6px}.caption h3{font-size:14.5px;margin-top:6px}.caption p{margin:0;color:#d2d9e2;font-size:13px}
+.note{margin-top:16px;font-size:12.5px;color:var(--muted);border-inline-start:3px solid var(--line);padding:6px 14px}footer{margin-top:56px;text-align:center;color:var(--muted);font-size:11.5px;font-family:'IBM Plex Mono',monospace}
+
+/* ===== INTERACTION & ANIMATION UPGRADE ===== */
+@keyframes floatIn{
+  from{opacity:0;transform:translateY(18px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes hotcuePulse{
+  0%{transform:scale(1);filter:brightness(1)}
+  45%{transform:scale(1.18);filter:brightness(1.55)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+@keyframes haloBurst{
+  0%{opacity:.95;transform:scale(.6)}
+  100%{opacity:0;transform:scale(2.25)}
+}
+@keyframes stepGlow{
+  0%,100%{box-shadow:0 0 0 rgba(51,225,234,0)}
+  50%{box-shadow:0 0 24px rgba(51,225,234,.22)}
+}
+@keyframes jogTouch{
+  0%,100%{transform:rotate(-4deg) translateY(0)}
+  50%{transform:rotate(4deg) translateY(1px)}
+}
+section,.hero{animation:floatIn .55s ease both}
+section:nth-of-type(2){animation-delay:.08s}
+section:nth-of-type(3){animation-delay:.16s}
+
+.btn,.fx-toggle,.point-card,.point-marker{will-change:transform,filter}
+.btn:hover{
+  transform:translateY(-3px) scale(1.08);
+  color:var(--btn-color,var(--cyan));
+  border-color:var(--btn-color,var(--cyan));
+  box-shadow:0 12px 24px rgba(0,0,0,.3),0 0 18px color-mix(in srgb,var(--btn-color,var(--cyan)) 35%,transparent)
+}
+.btn.primary{--btn-color:var(--cyan)}
+#resetBtn{--btn-color:var(--amber)}
+.speed-btn[data-speed="0.5"]{--btn-color:var(--hcD)}
+.speed-btn[data-speed="1"]{--btn-color:var(--cyan)}
+.speed-btn[data-speed="1.5"]{--btn-color:var(--alert)}
+.fx-toggle{--btn-color:var(--alert)}
+.fx-toggle:hover{
+  transform:translateY(-3px) scale(1.1);
+  color:var(--alert);border-color:var(--alert);
+  box-shadow:0 0 20px rgba(255,93,162,.35)
+}
+.point-card:hover{transform:translateY(-3px) scale(1.025)}
+.point-card[data-point="A"]:hover{border-color:var(--hcA);box-shadow:0 0 18px rgba(255,77,109,.2)}
+.point-card[data-point="B"]:hover{border-color:var(--hcB);box-shadow:0 0 18px rgba(255,176,32,.2)}
+.point-card[data-point="C"]:hover{border-color:var(--hcC);box-shadow:0 0 18px rgba(46,204,113,.2)}
+.point-card[data-point="D"]:hover{border-color:var(--hcD);box-shadow:0 0 18px rgba(91,140,255,.2)}
+
+.point-marker.is-active{animation:hotcuePulse .45s ease}
+.point-marker .click-burst{pointer-events:none;transform-box:fill-box;transform-origin:center}
+.point-marker .click-burst.run{animation:haloBurst .55s ease-out}
+.point-card.is-active{animation:stepGlow .7s ease}
+
+.jog-hand.active{animation:jogTouch .48s ease-in-out infinite}
+
+.sim-layout{display:block}
+.sim-main{width:100%}
+.live-steps{
+  margin-top:18px;
+  background:var(--panel);
+  border:2px solid var(--line);
+  border-radius:14px;
+  padding:14px;
+}
+.live-steps h3{font-size:14px;margin-bottom:10px}
+.live-steps-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+.live-step{
+  position:relative;
+  border:2px solid var(--line);
+  background:var(--panel-raised);
+  border-radius:10px;
+  padding:34px 10px 10px;
+  min-height:108px;
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  transition:transform .2s,border-color .2s,background .2s,color .2s,box-shadow .2s,opacity .2s
+}
+.live-step .num{
+  position:absolute;top:9px;left:50%;transform:translateX(-50%);
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:9px;
+  border:2px solid var(--line);color:var(--muted)
+}
+.live-step.active{
+  color:var(--text);
+  border-color:var(--cyan);
+  background:rgba(51,225,234,.08);
+  transform:translateY(-4px) scale(1.025);
+  box-shadow:0 0 18px rgba(51,225,234,.18)
+}
+.live-step.active .num{color:#071014;background:var(--cyan);border-color:var(--cyan)}
+.live-step.done{opacity:.55}
+.live-step.done .num{background:var(--hcC);color:#071014;border-color:var(--hcC)}
+@media(max-width:780px){.live-steps-grid{grid-template-columns:1fr 1fr}.live-step:last-child{grid-column:1/-1}}
+@media(max-width:480px){.live-steps-grid{grid-template-columns:1fr}}
+
+
+/* SCMT preparation bubbles */
+.prep-item{
+  opacity:0;
+  transform:translateY(18px) scale(.94);
+  transition:opacity .55s ease,transform .55s cubic-bezier(.2,.8,.2,1),
+             border-color .25s,box-shadow .25s;
+}
+.prep-panel.in-view .prep-item{opacity:1;transform:translateY(0) scale(1)}
+.prep-panel.in-view .prep-item:nth-child(1){transition-delay:.08s}
+.prep-panel.in-view .prep-item:nth-child(2){transition-delay:.22s}
+.prep-panel.in-view .prep-item:nth-child(3){transition-delay:.36s}
+.prep-item:hover{
+  transform:translateY(-4px) scale(1.035);
+  border-color:var(--cyan);
+  box-shadow:0 0 18px rgba(51,225,234,.16)
+}
+.prep-item:nth-child(2):hover{border-color:var(--hcB);box-shadow:0 0 18px rgba(255,176,32,.16)}
+.prep-item:nth-child(3):hover{border-color:var(--alert);box-shadow:0 0 18px rgba(255,93,162,.16)}
+.prep-letter{transition:transform .25s,background .25s,color .25s,box-shadow .25s}
+.prep-item:hover .prep-letter{transform:rotate(-7deg) scale(1.14);background:var(--text);color:#0a0d12;box-shadow:0 0 14px rgba(255,255,255,.2)}
+@keyframes prepPulse{
+  0%,100%{box-shadow:0 0 0 rgba(51,225,234,0)}
+  50%{box-shadow:0 0 20px rgba(51,225,234,.22)}
+}
+.prep-panel.in-view .prep-item{animation:prepPulse 1.4s ease 1}
+.prep-panel.in-view .prep-item:nth-child(2){animation-delay:.22s}
+.prep-panel.in-view .prep-item:nth-child(3){animation-delay:.36s}
+
+/* Three-song mix scroll animation */
+.flow-song,.flow-overlap,.flow-arrow{
+  opacity:0;
+  transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1)
+}
+.flow-song.sA{transform:translateX(90px)}
+.flow-song.sB{transform:translateX(130px)}
+.flow-song.sC{transform:translateX(170px)}
+.flow-overlap{transform:scale(.75)}
+.flow-arrow{transform:translateY(12px)}
+.flow-panel.in-view .flow-song,
+.flow-panel.in-view .flow-overlap,
+.flow-panel.in-view .flow-arrow{opacity:1;transform:none}
+.flow-panel.in-view .flow-song.sA{transition-delay:.08s}
+.flow-panel.in-view .flow-song.sB{transition-delay:.38s}
+.flow-panel.in-view .ov1,.flow-panel.in-view .fa1{transition-delay:.62s}
+.flow-panel.in-view .flow-song.sC{transition-delay:.92s}
+.flow-panel.in-view .ov2,.flow-panel.in-view .fa2{transition-delay:1.16s}
+.flow-wave svg path{
+  stroke-dasharray:1400;
+  stroke-dashoffset:1400;
+  transition:stroke-dashoffset 1.35s ease;
+}
+.flow-panel.in-view .flow-wave svg path{stroke-dashoffset:0}
+.flow-panel.in-view .sA .flow-wave svg path{transition-delay:.12s}
+.flow-panel.in-view .sB .flow-wave svg path{transition-delay:.42s}
+.flow-panel.in-view .sC .flow-wave svg path{transition-delay:.96s}
+.flow-ext,.flow-drop{transition:filter .25s,box-shadow .25s,transform .25s}
+.flow-panel.in-view .flow-ext,.flow-panel.in-view .flow-drop{
+  animation:segmentBreath 1.8s ease-in-out 2;
+}
+@keyframes segmentBreath{
+  0%,100%{filter:brightness(1);box-shadow:none}
+  50%{filter:brightness(1.35);box-shadow:0 0 18px currentColor}
+}
+
+
+/* Animated explanation cards under the three-song flow */
+.flow-step{
+  opacity:0;
+  transform:translateY(18px) scale(.96);
+  transition:
+    opacity .55s ease,
+    transform .55s cubic-bezier(.2,.8,.2,1),
+    border-color .25s,
+    box-shadow .25s,
+    background .25s;
+  position:relative;
+  overflow:hidden;
+}
+.flow-step::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.08) 45%,transparent 70%);
+  transform:translateX(120%);
+}
+.flow-panel.in-view .flow-step{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.flow-panel.in-view .flow-step:nth-child(1){transition-delay:1.28s}
+.flow-panel.in-view .flow-step:nth-child(2){transition-delay:1.52s}
+.flow-panel.in-view .flow-step:nth-child(3){transition-delay:1.76s}
+
+.flow-panel.in-view .flow-step:nth-child(1)::before{animation:flowShine .8s ease 1.42s both}
+.flow-panel.in-view .flow-step:nth-child(2)::before{animation:flowShine .8s ease 1.66s both}
+.flow-panel.in-view .flow-step:nth-child(3)::before{animation:flowShine .8s ease 1.90s both}
+
+.flow-step:nth-child(1){border-color:rgba(255,159,67,.28)}
+.flow-step:nth-child(2){border-color:rgba(51,225,234,.28)}
+.flow-step:nth-child(3){border-color:rgba(91,140,255,.28)}
+
+.flow-step:hover{
+  transform:translateY(-5px) scale(1.035);
+}
+.flow-step:nth-child(1):hover{
+  border-color:var(--amber);
+  background:rgba(255,159,67,.08);
+  box-shadow:0 0 20px rgba(255,159,67,.20);
+}
+.flow-step:nth-child(2):hover{
+  border-color:var(--cyan);
+  background:rgba(51,225,234,.08);
+  box-shadow:0 0 20px rgba(51,225,234,.20);
+}
+.flow-step:nth-child(3):hover{
+  border-color:var(--hcD);
+  background:rgba(91,140,255,.08);
+  box-shadow:0 0 20px rgba(91,140,255,.20);
+}
+.flow-step b{
+  transition:color .25s,text-shadow .25s,transform .25s;
+}
+.flow-step:hover b{
+  transform:translateY(-1px);
+}
+.flow-step:nth-child(1):hover b{color:var(--amber);text-shadow:0 0 10px rgba(255,159,67,.35)}
+.flow-step:nth-child(2):hover b{color:var(--cyan);text-shadow:0 0 10px rgba(51,225,234,.35)}
+.flow-step:nth-child(3):hover b{color:var(--hcD);text-shadow:0 0 10px rgba(91,140,255,.35)}
+
+@keyframes flowShine{
+  from{transform:translateX(120%)}
+  to{transform:translateX(-120%)}
+}
+
+
+/* Mouse-driven teaching mode for the 3-step flow */
+.flow-step{cursor:pointer}
+.flow-step.is-focused{
+  transform:translateY(-6px) scale(1.045)!important;
+  color:var(--text);
+  z-index:3;
+}
+.flow-step.is-focused:nth-child(1){
+  border-color:var(--amber);
+  background:rgba(255,159,67,.10);
+  box-shadow:0 0 26px rgba(255,159,67,.28);
+}
+.flow-step.is-focused:nth-child(2){
+  border-color:var(--cyan);
+  background:rgba(51,225,234,.10);
+  box-shadow:0 0 26px rgba(51,225,234,.28);
+}
+.flow-step.is-focused:nth-child(3){
+  border-color:var(--hcD);
+  background:rgba(91,140,255,.10);
+  box-shadow:0 0 26px rgba(91,140,255,.28);
+}
+
+.flow-stage.teach-mode .flow-song,
+.flow-stage.teach-mode .flow-overlap,
+.flow-stage.teach-mode .flow-arrow{
+  opacity:.18;
+  filter:saturate(.45) brightness(.7);
+  transition:opacity .22s,filter .22s,transform .22s,box-shadow .22s;
+}
+.flow-stage.teach-mode .focus-target{
+  opacity:1!important;
+  filter:none!important;
+  transform:scale(1.025)!important;
+  z-index:5;
+}
+.flow-stage.teach-mode .flow-overlap.focus-target{
+  box-shadow:0 0 28px rgba(255,93,162,.42);
+}
+.flow-stage.teach-mode .flow-arrow.focus-target{
+  text-shadow:0 0 12px currentColor;
+  font-weight:700;
+}
+.flow-stage.teach-mode .flow-song.focus-target .flow-wave{
+  box-shadow:0 0 22px rgba(255,255,255,.14);
+}
+.flow-stage.teach-mode .flow-song.focus-target .flow-ext,
+.flow-stage.teach-mode .flow-song.focus-target .flow-drop{
+  animation:teachPulse 1s ease-in-out infinite;
+}
+@keyframes teachPulse{
+  0%,100%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.035);filter:brightness(1.35)}
+}
+.flow-tip{
+  margin-top:10px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Classroom teaching mode for Hot Cue points */
+.diagram-box.hotcue-teach-mode .point-marker,
+.diagram-box.hotcue-teach-mode .hotcue-zone{
+  opacity:.18;
+  filter:saturate(.45) brightness(.72);
+  transition:opacity .22s,filter .22s,transform .22s,box-shadow .22s;
+}
+.diagram-box.hotcue-teach-mode .point-marker.hotcue-focus,
+.diagram-box.hotcue-teach-mode .hotcue-zone.hotcue-focus{
+  opacity:1!important;
+  filter:none!important;
+  transform:scale(1.035);
+}
+.diagram-box.hotcue-teach-mode .point-marker.hotcue-focus .halo{
+  opacity:1;
+  animation:hotcueTeacherPulse 1s ease-in-out infinite;
+}
+.diagram-box.hotcue-teach-mode .point-marker.hotcue-focus text{
+  filter:drop-shadow(0 0 8px currentColor);
+}
+.point-card.hotcue-card-focus{
+  transform:translateY(-5px) scale(1.035)!important;
+  color:var(--text);
+  z-index:4;
+}
+.point-card[data-point="A"].hotcue-card-focus{
+  border-color:var(--hcA)!important;
+  background:rgba(255,77,109,.10);
+  box-shadow:0 0 24px rgba(255,77,109,.25)!important;
+}
+.point-card[data-point="B"].hotcue-card-focus{
+  border-color:var(--hcB)!important;
+  background:rgba(255,176,32,.10);
+  box-shadow:0 0 24px rgba(255,176,32,.25)!important;
+}
+.point-card[data-point="C"].hotcue-card-focus{
+  border-color:var(--hcC)!important;
+  background:rgba(46,204,113,.10);
+  box-shadow:0 0 24px rgba(46,204,113,.25)!important;
+}
+.point-card[data-point="D"].hotcue-card-focus{
+  border-color:var(--hcD)!important;
+  background:rgba(91,140,255,.10);
+  box-shadow:0 0 24px rgba(91,140,255,.25)!important;
+}
+.hotcue-tip{
+  margin-top:10px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+@keyframes hotcueTeacherPulse{
+  0%,100%{transform:scale(1);opacity:.9}
+  50%{transform:scale(1.45);opacity:.35}
+}
+
+
+/* ===== Wider left-to-right DJ timeline ===== */
+.flow-panel{
+  margin-inline:-72px;
+  padding:22px 26px;
+}
+.flow-stage{
+  direction:ltr;
+  height:340px;
+  overflow-x:auto;
+  overflow-y:hidden;
+}
+.flow-canvas{
+  position:relative;
+  min-width:1080px;
+  height:100%;
+}
+.flow-grid{
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(10% - 1px),
+      rgba(255,255,255,.055) calc(10% - 1px),
+      rgba(255,255,255,.055) 10%
+    );
+}
+.flow-time-arrow{
+  position:absolute;
+  left:5%;
+  right:4%;
+  top:18px;
+  height:1px;
+  background:linear-gradient(90deg,var(--muted),var(--cyan));
+  opacity:.65;
+}
+.flow-time-arrow::after{
+  content:"";
+  position:absolute;
+  right:-1px;
+  top:-5px;
+  border-left:9px solid var(--cyan);
+  border-top:5px solid transparent;
+  border-bottom:5px solid transparent;
+}
+.flow-time-arrow span{
+  position:absolute;
+  left:0;
+  top:-23px;
+  color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+}
+.flow-song{
+  left:0!important;
+  right:auto!important;
+  height:76px;
+}
+.flow-song.sA{top:58px;width:44%;left:4%!important}
+.flow-song.sB{top:136px;width:44%;left:34%!important}
+.flow-song.sC{top:214px;width:44%;left:64%!important}
+
+.flow-name{
+  left:0;
+  right:auto;
+  top:24px;
+  width:76px;
+}
+.flow-wave{
+  left:82px;
+  right:0;
+  top:11px;
+}
+.flow-role{
+  left:82px;
+  right:auto;
+}
+.flow-ext,.flow-drop{
+  direction:ltr;
+}
+.a-drop{left:68%;right:auto;width:32%}
+.b-ext{left:0;right:auto;width:32%}
+.b-drop{left:68%;right:auto;width:32%}
+.c-ext{left:0;right:auto;width:32%}
+
+.flow-overlap{
+  width:14.1%;
+  height:150px;
+}
+.ov1{left:34%;right:auto;top:52px}
+.ov2{left:64%;right:auto;top:130px}
+.flow-arrow{
+  direction:ltr;
+  white-space:nowrap;
+}
+.fa1{left:35.5%;right:auto;top:113px}
+.fa2{left:65.5%;right:auto;top:191px}
+
+.flow-song.sA,
+.flow-song.sB,
+.flow-song.sC{
+  transform:translateX(-110px);
+}
+.flow-panel.in-view .flow-song{
+  transform:none;
+}
+
+@media(max-width:1120px){
+  .flow-panel{margin-inline:-18px}
+}
+@media(max-width:700px){
+  .flow-panel{margin-inline:0;padding:16px}
+  .flow-stage{height:340px}
+}
+
+
+/* ===== Clearer waveform row positioning ===== */
+.flow-stage{height:390px}
+.flow-canvas{min-width:1140px;height:100%}
+.flow-song{height:82px}
+.flow-song.sA{top:64px;width:40%;left:4%!important}
+.flow-song.sB{top:168px;width:40%;left:34%!important}
+.flow-song.sC{top:272px;width:40%;left:64%!important}
+.flow-wave{
+  top:14px;
+  height:54px;
+  background:#0c1219;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 18px rgba(0,0,0,.22);
+}
+.flow-name{top:27px}
+.flow-overlap{height:92px}
+.ov1{left:34%;top:63px}
+.ov2{left:64%;top:167px}
+.fa1{left:35.5%;top:142px}
+.fa2{left:65.5%;top:246px}
+.flow-time-arrow{top:24px}
+
+
+/* ===== Precision layout fix for section 2 ===== */
+.flow-panel{
+  margin-inline:-90px;
+  padding:24px 30px 26px;
+}
+.flow-stage{
+  height:470px;
+  overflow-x:auto;
+  overflow-y:hidden;
+}
+.flow-canvas{
+  min-width:1240px;
+  height:100%;
+}
+
+/* Dedicated rows with generous separation */
+.flow-song{
+  height:86px;
+}
+.flow-song.sA{top:72px;width:38%;left:5%!important}
+.flow-song.sB{top:200px;width:38%;left:34%!important}
+.flow-song.sC{top:328px;width:38%;left:63%!important}
+
+/* Fixed label column; waveform begins after the label */
+.flow-name{
+  left:0;
+  top:28px;
+  width:84px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#10161f;
+  border:2px solid var(--line);
+  border-radius:8px;
+  z-index:4;
+}
+.flow-wave{
+  left:96px;
+  right:0;
+  top:14px;
+  height:58px;
+  z-index:1;
+}
+
+/* Segment labels stay inside the waveform and never collide */
+.flow-ext,.flow-drop{
+  top:18px;
+  height:50px;
+  font-size:10px;
+  z-index:3;
+  white-space:nowrap;
+}
+.a-drop{left:68%;width:32%}
+.b-ext{left:0;width:32%}
+.b-drop{left:68%;width:32%}
+.c-ext{left:0;width:32%}
+
+/* Overlap boxes align only with waveform areas */
+.flow-overlap{
+  height:98px;
+  width:12.2%;
+  z-index:2;
+}
+.ov1{left:34%;top:76px}
+.ov2{left:63%;top:204px}
+
+/* Explanation labels get their own clean lanes below each overlap */
+.flow-arrow{
+  position:absolute;
+  left:auto;
+  right:auto;
+  width:250px;
+  padding:5px 9px;
+  border-radius:7px;
+  background:#10161f;
+  border:1px solid rgba(255,93,162,.45);
+  color:var(--alert);
+  text-align:center;
+  white-space:normal;
+  line-height:1.35;
+  z-index:6;
+  font-size:10.5px;
+}
+.fa1{left:36%;top:174px}
+.fa2{left:65%;top:302px}
+
+/* Timeline arrow at the top, away from all content */
+.flow-time-arrow{top:28px;left:5%;right:4%}
+.flow-time-arrow span{
+  top:-22px;
+  background:#0d1218;
+  padding-inline:6px;
+}
+
+/* Make the explanatory cards below line up cleanly */
+.flow-explain{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+.flow-step{
+  min-height:118px;
+  padding:16px;
+  line-height:1.55;
+}
+.flow-step b{
+  font-size:14px;
+  margin-bottom:7px;
+}
+
+@media(max-width:1180px){
+  .flow-panel{margin-inline:-24px}
+}
+@media(max-width:760px){
+  .flow-panel{margin-inline:0;padding:16px}
+  .flow-stage{height:470px}
+  .flow-explain{grid-template-columns:1fr}
+}
+
+
+/* ===== Clean overlap frames in section 2 ===== */
+.flow-overlap{
+  border:2px solid var(--alert);
+  border-radius:12px;
+  background:rgba(255,93,162,.035);
+  box-shadow:0 0 0 1px rgba(255,93,162,.12) inset;
+  width:11.4%;
+  height:86px;
+  z-index:5;
+}
+.ov1{
+  left:34.1%;
+  top:78px;
+}
+.ov2{
+  left:63.1%;
+  top:206px;
+}
+
+/* Put each explanation directly beneath its own overlap frame */
+.flow-arrow{
+  width:220px;
+  padding:6px 10px;
+  font-size:10px;
+  line-height:1.35;
+  background:#1b2430;
+  border:1px solid rgba(255,93,162,.55);
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
+}
+.fa1{
+  left:35.1%;
+  top:170px;
+}
+.fa2{
+  left:64.1%;
+  top:298px;
+}
+
+/* Keep the frames aligned to the waveform content rather than the labels */
+.flow-song .flow-name{z-index:8}
+.flow-song .flow-wave{z-index:1}
+.flow-song .flow-ext,
+.flow-song .flow-drop{z-index:4}
+
+
+/* ===== Exact clean 3-song timeline ===== */
+.clean-flow-stage{
+  direction:ltr;
+  height:500px;
+  overflow-x:auto;
+  overflow-y:hidden;
+}
+.clean-flow-canvas{
+  position:relative;
+  width:1180px;
+  height:100%;
+  margin:0 auto;
+}
+.clean-time-arrow{
+  position:absolute;
+  left:80px;
+  right:30px;
+  top:34px;
+  height:1px;
+  background:linear-gradient(90deg,var(--muted),var(--cyan));
+  opacity:.75;
+}
+.clean-time-arrow::after{
+  content:"";
+  position:absolute;
+  right:-1px;
+  top:-5px;
+  border-left:10px solid var(--cyan);
+  border-top:5px solid transparent;
+  border-bottom:5px solid transparent;
+}
+.clean-time-arrow span{
+  position:absolute;
+  left:0;
+  top:-24px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  background:#0d1218;
+  padding:0 6px;
+}
+.clean-row{
+  position:absolute;
+  left:60px;
+  width:1060px;
+  height:74px;
+}
+.row-a{top:90px}
+.row-b{top:225px}
+.row-c{top:360px}
+.clean-label{
+  position:absolute;
+  left:0;
+  top:18px;
+  width:86px;
+  height:38px;
+  border-radius:9px;
+  background:#10161f;
+  border:2px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Rubik',sans-serif;
+  font-weight:800;
+  z-index:6;
+}
+.label-a{color:var(--amber)}
+.label-b{color:var(--cyan)}
+.label-c{color:var(--hcD)}
+.clean-wave{
+  position:absolute;
+  top:9px;
+  height:58px;
+  border-radius:10px;
+  background:#0c1219;
+  border:1px solid rgba(255,255,255,.13);
+  overflow:hidden;
+  box-shadow:0 8px 18px rgba(0,0,0,.25);
+  z-index:1;
+}
+.clean-wave svg{display:block;width:100%;height:100%}
+.wave-a{left:96px;width:420px}
+.wave-b{left:386px;width:420px}
+.wave-c{left:676px;width:420px}
+
+.clean-segment{
+  position:absolute;
+  top:13px;
+  height:50px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  z-index:4;
+  pointer-events:none;
+}
+.clean-ext{
+  color:var(--cyan);
+  border:1px solid rgba(51,225,234,.72);
+  background:rgba(51,225,234,.16);
+}
+.clean-drop{
+  color:var(--amber);
+  border:1px solid rgba(255,159,67,.72);
+  background:rgba(255,159,67,.16);
+}
+.a-drop-clean{left:386px;width:130px}
+.b-ext-clean{left:386px;width:130px}
+.b-drop-clean{left:676px;width:130px}
+.c-ext-clean{
+  left:676px;
+  width:130px;
+  color:#8eb0ff;
+  border-color:rgba(91,140,255,.76);
+  background:rgba(91,140,255,.16);
+}
+
+.clean-overlap{
+  position:absolute;
+  width:130px;
+  height:114px;
+  border:2px solid var(--alert);
+  border-radius:14px;
+  background:rgba(255,93,162,.035);
+  box-shadow:0 0 0 1px rgba(255,93,162,.12) inset;
+  z-index:8;
+}
+.overlap-ab{left:446px;top:84px}
+.overlap-bc{left:736px;top:219px}
+.clean-overlap span{
+  position:absolute;
+  top:120px;
+  left:50%;
+  transform:translateX(-50%);
+  width:245px;
+  padding:6px 10px;
+  border-radius:8px;
+  background:#1b2430;
+  border:1px solid rgba(255,93,162,.55);
+  color:var(--alert);
+  text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  line-height:1.35;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+}
+
+/* Scroll and teaching animation for the rebuilt flow */
+.clean-row,.clean-overlap{
+  opacity:0;
+  transform:translateX(-70px);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1);
+}
+.flow-panel.in-view .row-a{opacity:1;transform:none;transition-delay:.08s}
+.flow-panel.in-view .row-b{opacity:1;transform:none;transition-delay:.38s}
+.flow-panel.in-view .overlap-ab{opacity:1;transform:none;transition-delay:.62s}
+.flow-panel.in-view .row-c{opacity:1;transform:none;transition-delay:.92s}
+.flow-panel.in-view .overlap-bc{opacity:1;transform:none;transition-delay:1.16s}
+
+.clean-flow-stage.teach-mode .clean-row,
+.clean-flow-stage.teach-mode .clean-overlap{
+  opacity:.18!important;
+  filter:saturate(.45) brightness(.7);
+}
+.clean-flow-stage.teach-mode .focus-target{
+  opacity:1!important;
+  filter:none!important;
+  transform:scale(1.02)!important;
+  z-index:12;
+}
+.clean-flow-stage.teach-mode .clean-overlap.focus-target{
+  box-shadow:0 0 28px rgba(255,93,162,.42);
+}
+
+/* ===== Large SCMT interactive teaching block ===== */
+.scmt-hero{
+  margin-bottom:22px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(51,225,234,.09),transparent 42%),
+    var(--panel);
+  border:2px solid var(--line);
+  border-radius:18px;
+  padding:24px 22px 20px;
+  text-align:center;
+  overflow:hidden;
+}
+.scmt-title{
+  font-family:'Rubik',sans-serif;
+  font-size:clamp(44px,8vw,82px);
+  font-weight:900;
+  letter-spacing:.13em;
+  line-height:1;
+  background:linear-gradient(90deg,var(--cyan),var(--hcB),var(--alert),var(--hcD));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:scmtTitleGlow 2.4s ease-in-out infinite;
+}
+.scmt-subtitle{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12.5px;
+}
+.scmt-letters{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+  margin:22px 0 18px;
+}
+.scmt-letter{
+  width:86px;
+  height:86px;
+  border-radius:20px;
+  border:2px solid var(--line);
+  background:linear-gradient(180deg,#202936,#141b24);
+  color:var(--text);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:34px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.24);
+  transition:transform .18s,border-color .18s,color .18s,box-shadow .18s,background .18s;
+}
+.scmt-letter:hover,
+.scmt-letter.is-active{
+  transform:translateY(-7px) scale(1.1);
+  color:var(--scmt-color);
+  border-color:var(--scmt-color);
+  background:color-mix(in srgb,var(--scmt-color) 11%,#18212c);
+  box-shadow:0 0 26px color-mix(in srgb,var(--scmt-color) 35%,transparent);
+}
+.scmt-letter:active{transform:translateY(-2px) scale(1.04)}
+.scmt-display{
+  max-width:760px;
+  margin:0 auto;
+  min-height:126px;
+  border:2px solid var(--line);
+  border-radius:14px;
+  background:#1b2430;
+  padding:18px 20px;
+  display:grid;
+  grid-template-columns:72px 1fr;
+  gap:18px;
+  align-items:center;
+  text-align:right;
+  transition:border-color .2s,box-shadow .2s,transform .2s;
+}
+.scmt-display.is-changing{
+  transform:scale(.985);
+  opacity:.65;
+}
+.scmt-display-letter{
+  width:64px;
+  height:64px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:28px;
+  font-weight:800;
+  color:#071014;
+  background:var(--cyan);
+  box-shadow:0 0 18px rgba(51,225,234,.28);
+}
+.scmt-display h3{font-size:18px;margin-bottom:5px}
+.scmt-display p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.7;white-space:pre-line}
+@keyframes scmtTitleGlow{
+  0%,100%{filter:brightness(1);transform:scale(1)}
+  50%{filter:brightness(1.22);transform:scale(1.015)}
+}
+@media(max-width:650px){
+  .scmt-letter{width:68px;height:68px;font-size:28px}
+  .scmt-display{grid-template-columns:1fr;text-align:center}
+  .scmt-display-letter{margin:auto}
+}
+
+
+/* Large SCMT entrance before the booth */
+.scmt-hero{
+  opacity:0;
+  transform:translateY(28px) scale(.96);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1);
+}
+.scmt-hero.in-view{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.scmt-hero.in-view .scmt-title{
+  animation:scmtEntrance 1s cubic-bezier(.2,.8,.2,1) both,scmtTitleGlow 2.4s ease-in-out 1s infinite;
+}
+.scmt-hero.in-view .scmt-letter{
+  animation:scmtLetterPop .55s cubic-bezier(.2,.9,.2,1) both;
+}
+.scmt-hero.in-view .scmt-letter:nth-child(1){animation-delay:.18s}
+.scmt-hero.in-view .scmt-letter:nth-child(2){animation-delay:.30s}
+.scmt-hero.in-view .scmt-letter:nth-child(3){animation-delay:.42s}
+.scmt-hero.in-view .scmt-letter:nth-child(4){animation-delay:.54s}
+.scmt-hero.in-view .scmt-display{
+  animation:scmtDisplayReveal .65s ease .68s both;
+}
+@keyframes scmtEntrance{
+  0%{opacity:0;letter-spacing:.45em;transform:scale(.72);filter:blur(8px)}
+  70%{opacity:1;letter-spacing:.18em;transform:scale(1.06);filter:blur(0)}
+  100%{opacity:1;letter-spacing:.13em;transform:scale(1)}
+}
+@keyframes scmtLetterPop{
+  0%{opacity:0;transform:translateY(25px) scale(.55) rotate(-12deg)}
+  75%{opacity:1;transform:translateY(-4px) scale(1.08) rotate(2deg)}
+  100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
+}
+@keyframes scmtDisplayReveal{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+
+/* ===== SCMT console — matched to the preparation panel below ===== */
+.scmt-console{
+  position:relative;
+  padding:0;
+  border:1px solid var(--chassis-line);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.05),transparent 25%),
+    linear-gradient(180deg,var(--chassis-raised),var(--chassis));
+  box-shadow:
+    0 24px 54px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.04);
+}
+.scmt-console::before,
+.scmt-console::after{
+  content:"";
+  position:absolute;
+  width:10px;height:10px;border-radius:50%;
+  top:12px;
+  background:radial-gradient(circle at 35% 30%,#555d66,#0b0d10 72%);
+  box-shadow:0 1px 1px rgba(255,255,255,.08) inset;
+}
+.scmt-console::before{left:12px}
+.scmt-console::after{right:12px}
+
+.scmt-console-top{
+  padding:24px 22px 18px;
+  border-bottom:1px solid var(--chassis-line);
+  background:
+    repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 8px),
+    rgba(0,0,0,.08);
+}
+.scmt-console-kicker{
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:.22em;
+  margin-bottom:10px;
+}
+.scmt-console .scmt-title{
+  display:flex;
+  justify-content:center;
+  gap:.08em;
+  letter-spacing:0;
+  font-size:clamp(52px,9vw,96px);
+}
+.scmt-console .scmt-title span{
+  display:inline-block;
+  color:var(--text);
+  -webkit-text-fill-color:initial;
+  text-shadow:0 0 0 transparent;
+  transition:color .22s,transform .22s,text-shadow .22s;
+}
+.scmt-console .scmt-title span:nth-child(1){color:var(--cyan)}
+.scmt-console .scmt-title span:nth-child(2){color:var(--hcB)}
+.scmt-console .scmt-title span:nth-child(3){color:var(--alert)}
+.scmt-console .scmt-title span:nth-child(4){color:var(--hcD)}
+
+.scmt-modules{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  padding:18px 20px 14px;
+  margin:0;
+}
+.scmt-module{
+  width:auto;
+  height:132px;
+  border-radius:14px;
+  padding:14px 10px 12px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:2px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.05),transparent),
+    var(--panel-raised);
+  border:2px solid var(--line);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.07);
+}
+.scmt-module-code{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:38px;
+  font-weight:800;
+  line-height:1;
+  color:var(--text);
+  transition:color .2s,text-shadow .2s,transform .2s;
+}
+.scmt-module-name{
+  font-family:'Rubik',sans-serif;
+  font-size:13px;
+  font-weight:800;
+  color:var(--text);
+}
+.scmt-module-caption{
+  margin-top:2px;
+  font-size:10.5px;
+  color:var(--muted);
+  line-height:1.25;
+}
+.scmt-module:hover,
+.scmt-module.is-active{
+  transform:translateY(-6px) scale(1.035);
+  border-color:var(--scmt-color);
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--scmt-color) 12%,transparent),transparent 68%),
+    var(--panel-raised);
+  box-shadow:
+    0 16px 30px rgba(0,0,0,.3),
+    0 0 22px color-mix(in srgb,var(--scmt-color) 28%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+.scmt-module:hover .scmt-module-code,
+.scmt-module.is-active .scmt-module-code{
+  color:var(--scmt-color);
+  text-shadow:0 0 15px color-mix(in srgb,var(--scmt-color) 60%,transparent);
+  transform:scale(1.08);
+}
+
+.scmt-signal-line{
+  position:relative;
+  height:22px;
+  margin:0 38px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  align-items:center;
+}
+.scmt-signal-line::before{
+  content:"";
+  position:absolute;
+  left:8%;right:8%;top:50%;
+  height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--hcB),var(--alert),var(--hcD));
+  opacity:.42;
+}
+.scmt-signal-line span{
+  position:relative;
+  justify-self:center;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--panel);
+  border:2px solid var(--muted);
+  z-index:2;
+}
+.scmt-signal-line span:nth-child(1){border-color:var(--cyan)}
+.scmt-signal-line span:nth-child(2){border-color:var(--hcB)}
+.scmt-signal-line span:nth-child(3){border-color:var(--alert)}
+.scmt-signal-line span:nth-child(4){border-color:var(--hcD)}
+
+.scmt-console-display{
+  margin:0 20px 18px;
+  max-width:none;
+  min-height:132px;
+  background:
+    linear-gradient(180deg,rgba(51,225,234,.025),transparent),
+    #090d12;
+  border:2px solid var(--line);
+  box-shadow:
+    inset 0 3px 14px rgba(0,0,0,.55),
+    0 8px 22px rgba(0,0,0,.18);
+}
+.scmt-display-copy{min-width:0}
+.scmt-display-status{
+  color:var(--muted);
+  font-size:9px;
+  letter-spacing:.17em;
+  margin-bottom:4px;
+}
+.scmt-console-display .scmt-display-letter{
+  border:1px solid rgba(255,255,255,.14);
+}
+.scmt-to-prep{
+  height:44px;
+  border-top:1px solid var(--chassis-line);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:.12em;
+  background:rgba(0,0,0,.12);
+}
+.scmt-down-arrow{
+  color:var(--cyan);
+  font-size:20px;
+  animation:scmtArrowBounce 1.3s ease-in-out infinite;
+}
+
+/* visually connect to the panel directly below */
+.scmt-console + .prep-panel{
+  margin-top:-1px;
+  border-radius:0 0 16px 16px;
+  border-top-color:var(--chassis-line);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent),
+    var(--panel);
+}
+.scmt-console{
+  border-radius:18px 18px 0 0;
+  margin-bottom:0;
+}
+
+.scmt-hero.in-view .scmt-module{
+  animation:scmtModuleIn .58s cubic-bezier(.2,.9,.2,1) both;
+}
+.scmt-hero.in-view .scmt-module:nth-child(1){animation-delay:.18s}
+.scmt-hero.in-view .scmt-module:nth-child(2){animation-delay:.30s}
+.scmt-hero.in-view .scmt-module:nth-child(3){animation-delay:.42s}
+.scmt-hero.in-view .scmt-module:nth-child(4){animation-delay:.54s}
+
+@keyframes scmtModuleIn{
+  from{opacity:0;transform:translateY(24px) scale(.82)}
+  70%{opacity:1;transform:translateY(-4px) scale(1.04)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes scmtArrowBounce{
+  0%,100%{transform:translateY(-2px);opacity:.55}
+  50%{transform:translateY(4px);opacity:1}
+}
+
+@media(max-width:720px){
+  .scmt-modules{grid-template-columns:1fr 1fr}
+  .scmt-module{height:118px}
+}
+@media(max-width:430px){
+  .scmt-modules{grid-template-columns:1fr}
+}
+
+
+/* Clickable real-time transition checkpoints */
+.live-step{
+  cursor:pointer;
+  user-select:none;
+}
+.live-step:hover{
+  transform:translateY(-5px) scale(1.035);
+  border-color:var(--cyan);
+  color:var(--text);
+  box-shadow:0 0 20px rgba(51,225,234,.22);
+}
+.live-step:active{
+  transform:translateY(-1px) scale(.985);
+}
+.live-step:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+}
+.live-step.is-jump-target{
+  animation:jumpTargetFlash .65s ease;
+}
+@keyframes jumpTargetFlash{
+  0%{filter:brightness(1)}
+  45%{filter:brightness(1.8);box-shadow:0 0 28px rgba(51,225,234,.38)}
+  100%{filter:brightness(1)}
+}
+
+
+#nextStepBtn{
+  --btn-color:var(--hcC);
+}
+#nextStepBtn:hover{
+  border-color:var(--hcC);
+  color:var(--hcC);
+}
+
+
+/* Deck play buttons */
+.deck-label{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.deck-play{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:2px solid var(--line);
+  background:#182029;
+  color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;
+  transition:.2s;
+  box-shadow:0 0 0 rgba(0,0,0,0);
+}
+.deck-play.on,
+.deck-play.always-on{
+  color:#fff;
+  background:var(--hcC);
+  border-color:var(--hcC);
+  box-shadow:0 0 18px rgba(46,204,113,.45);
+}
+.deck-play.press{
+  animation:playPress .28s ease;
+}
+@keyframes playPress{
+  0%{transform:scale(1)}
+  45%{transform:scale(.86)}
+  100%{transform:scale(1)}
+}
+
+
+/* Pioneer CDJ style PLAY buttons */
+.deck-label{gap:10px}
+.deck-play{
+  width:56px;
+  height:44px;
+  border-radius:8px;
+  border:2px solid #303845;
+  background:linear-gradient(180deg,#232b35,#13181f);
+  position:relative;
+  color:#b6c0cb;
+  font-size:0;
+  cursor:default;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 4px 10px rgba(0,0,0,.35);
+}
+.deck-play::before{
+  content:"▶";
+  position:absolute;
+  left:9px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:15px;
+  color:#8d97a3;
+  transition:.18s;
+}
+.deck-play::after{
+  content:"PLAY";
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  font:700 9px 'IBM Plex Mono',monospace;
+  letter-spacing:.08em;
+  color:#9099a5;
+  transition:.18s;
+}
+.deck-play.on,
+.deck-play.always-on{
+  border-color:#61d95e;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(83,255,141,.18),transparent 55%),
+    linear-gradient(180deg,#223226,#121916);
+  box-shadow:
+    0 0 18px rgba(57,216,109,.35),
+    inset 0 0 16px rgba(57,216,109,.16);
+}
+.deck-play.on::before,
+.deck-play.always-on::before,
+.deck-play.on::after,
+.deck-play.always-on::after{
+  color:#d9ffe2;
+  text-shadow:0 0 10px rgba(80,255,145,.7);
+}
+.deck-play.press{
+  animation:cdjPlayPress .18s ease;
+}
+@keyframes cdjPlayPress{
+  0%{transform:translateY(0) scale(1)}
+  45%{transform:translateY(2px) scale(.95)}
+  100%{transform:translateY(0) scale(1)}
+}
+
+
+/* Place volume faders and FX in one horizontal row */
+.channel-strip{
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  gap:34px;
+  margin:24px 0 12px;
+}
+.fx-module{
+  margin:0 0 6px;
+  width:190px;
+  min-width:190px;
+  align-self:flex-end;
+}
+
+
+/* Proper bottom mixer layout */
+.mixer-bottom-row{
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  gap:32px;
+  margin:24px 0 14px;
+}
+.channel-strip{
+  margin:0;
+}
+.fx-module{
+  width:210px;
+  min-width:210px;
+  margin:0;
+  align-self:flex-end;
+}
+@media(max-width:900px){
+  .mixer-bottom-row{
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+}
+
+
+/* Center faders, FX to the right */
+.mixer-bottom-row{
+  display:grid;
+  grid-template-columns: 1fr auto auto 1fr;
+  align-items:end;
+  column-gap:32px;
+  margin:24px 0 14px;
+}
+.mixer-bottom-row .channel-strip{
+  grid-column:2;
+  justify-self:center;
+  margin:0;
+}
+.mixer-bottom-row .fx-module{
+  grid-column:3;
+  justify-self:start;
+  align-self:end;
+  width:210px;
+  min-width:210px;
+  margin:0;
+}
+@media(max-width:900px){
+  .mixer-bottom-row{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+}
+
+
+/* Exact placement: faders stay centered; FX sits visually to their right */
+.mixer-bottom-row{
+  position:relative !important;
+  display:block !important;
+  min-height:190px;
+  margin:24px 0 14px;
+}
+.mixer-bottom-row .channel-strip{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  margin:0 !important;
+  justify-content:center;
+}
+.mixer-bottom-row .fx-module{
+  position:absolute;
+  left:calc(50% + 105px);
+  bottom:6px;
+  width:210px;
+  min-width:210px;
+  margin:0 !important;
+}
+@media(max-width:900px){
+  .mixer-bottom-row{
+    position:static !important;
+    display:flex !important;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+    min-height:0;
+  }
+  .mixer-bottom-row .channel-strip,
+  .mixer-bottom-row .fx-module{
+    position:static;
+    transform:none;
+  }
+}
+
+
+/* =========================================================
+   JUST MUSIC–INSPIRED VISUAL SYSTEM
+   ========================================================= */
+
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
+    #080808;
+  background-size:42px 42px;
+}
+
+.wrap{max-width:1120px;padding-top:26px}
+
+/* Bold editorial hero */
+.hero{
+  background:#0d0d0d;
+  border:2px solid #fff;
+  border-radius:0;
+  padding:38px 34px 34px;
+  box-shadow:14px 14px 0 rgba(255,255,255,.08);
+}
+.hero::before{
+  background:
+    linear-gradient(125deg,transparent 0 68%,rgba(244,255,0,.10) 68% 71%,transparent 71%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0 2px,transparent 2px 9px);
+}
+.eyebrow{
+  color:var(--jm-yellow);
+  letter-spacing:.2em;
+}
+.eyebrow .dot{
+  background:var(--jm-yellow);
+  box-shadow:0 0 12px rgba(244,255,0,.65);
+}
+h1{
+  color:#fff;
+  background:none;
+  -webkit-text-fill-color:#fff;
+  font-size:clamp(34px,6vw,62px);
+  line-height:1.02;
+  letter-spacing:-.035em;
+}
+.sub{
+  color:#ddd;
+  font-size:17px;
+  font-weight:600;
+  max-width:70ch;
+}
+.colorkey{
+  padding-top:18px;
+  border-top:1px solid #363636;
+}
+.ck-item{color:#e2e2e2;font-weight:700}
+
+/* Section hierarchy */
+section{margin-top:58px}
+.section-head h2{
+  font-size:clamp(24px,3.2vw,36px);
+  font-weight:900;
+  letter-spacing:-.025em;
+}
+.section-head .idx{
+  color:var(--jm-yellow);
+  background:#1b1b1b;
+  border:1px solid #464646;
+  padding:4px 8px;
+}
+.section-head::after{
+  height:2px;
+  background:linear-gradient(to left,#fff,transparent);
+  opacity:.35;
+}
+.hint{
+  color:#d1d1d1;
+  font-size:14px;
+  font-weight:600;
+}
+
+/* Cards: less software-neon, more bold educational layout */
+.panel,.diagram-box,.flow-panel,.prep-panel,.scmt-console,.booth{
+  border-radius:0;
+}
+.diagram-box,.flow-panel,.prep-panel{
+  background:#111;
+  border:1px solid #444;
+  box-shadow:8px 8px 0 rgba(255,255,255,.045);
+}
+.point-card,.flow-step,.prep-item,.live-step{
+  border-radius:0;
+  border:1px solid #444;
+  background:#181818;
+}
+.point-card:hover,.flow-step:hover,.prep-item:hover,.live-step:hover{
+  box-shadow:6px 6px 0 rgba(255,255,255,.08);
+}
+
+/* Waveform & teaching displays */
+.wave-title{
+  font-size:16px;
+  font-weight:900;
+  color:#fff;
+}
+.lcd,.caption,.scmt-console-display{
+  background:#050505;
+  border:1px solid #555;
+  border-radius:0;
+}
+
+/* SCMT as a branded teaching feature */
+.scmt-console{
+  border:2px solid #fff;
+  border-radius:0;
+  background:#0d0d0d;
+  box-shadow:12px 12px 0 rgba(255,255,255,.07);
+}
+.scmt-console-top{
+  background:#111;
+  border-bottom:1px solid #444;
+}
+.scmt-console-kicker{
+  color:var(--jm-yellow);
+}
+.scmt-console .scmt-title span{
+  text-shadow:none;
+}
+.scmt-module{
+  border-radius:0;
+  background:#171717;
+  border:1px solid #464646;
+}
+.scmt-module:hover,.scmt-module.is-active{
+  box-shadow:7px 7px 0 color-mix(in srgb,var(--scmt-color) 32%,transparent);
+}
+.scmt-to-prep{
+  background:#0a0a0a;
+}
+
+/* Booth: industrial rather than glossy neon */
+.booth{
+  background:
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0 2px,transparent 2px 8px),
+    #151515;
+  border:2px solid #4a4a4a;
+  box-shadow:12px 12px 0 rgba(0,0,0,.5);
+}
+.rig-label{
+  color:#ddd;
+  background:#0b0b0b;
+  border:1px solid #444;
+  padding:3px 9px;
+}
+.btn{
+  border-radius:0;
+  background:#171717;
+  border:1px solid #555;
+  box-shadow:4px 4px 0 rgba(255,255,255,.07);
+}
+.btn:hover{
+  box-shadow:6px 6px 0 color-mix(in srgb,var(--btn-color,var(--cyan)) 32%,transparent);
+}
+.btn.primary{
+  color:#080808;
+  background:var(--jm-yellow);
+  border-color:var(--jm-yellow);
+  box-shadow:5px 5px 0 rgba(244,255,0,.2);
+}
+.btn.primary:hover{
+  color:#080808;
+  background:#fff;
+  border-color:#fff;
+}
+.speed-btn.is-selected{
+  background:#fff;
+  color:#080808;
+  border-color:#fff;
+}
+
+/* Keep simulator semantic colors high contrast */
+.label-out{background:var(--amber)}
+.label-in{background:var(--cyan)}
+.led-fill.out{background:linear-gradient(to left,var(--amber),#6e2500)}
+.led-fill.in{background:linear-gradient(to left,var(--cyan),#102968)}
+.mm-band-label.low-label{color:var(--alert)}
+.swap-mark{background:var(--alert)}
+.fx-toggle.on{
+  background:var(--alert);
+  color:#fff;
+  border-color:var(--alert);
+}
+
+/* Text readability */
+.point-card p,.flow-step,.prep-item p,.live-step,.caption p,.scmt-display p,.note{
+  color:#d2d2d2;
+}
+.point-card h3,.flow-step b,.prep-item h4,.live-step b,.caption h3{
+  color:#fff;
+}
+
+/* Timeline and explanation frames */
+.clean-time-arrow{
+  background:linear-gradient(90deg,#fff,var(--jm-yellow));
+}
+.clean-time-arrow::after{
+  border-left-color:var(--jm-yellow);
+}
+.clean-overlap{
+  background:rgba(255,47,115,.06);
+  box-shadow:none;
+}
+.clean-overlap span{
+  border-radius:0;
+  background:#0c0c0c;
+}
+
+/* Footer */
+footer{
+  border-top:1px solid #3f3f3f;
+  padding-top:24px;
+  color:#aaa;
+}
+
+/* Projection mode: maximize contrast */
+@media (min-width:900px){
+  .point-card,.flow-step,.prep-item,.live-step{
+    min-height:112px;
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hero">
+<div class="eyebrow"><span class="dot"></span>DJ · Deck Transition Simulator</div>
+<h1>מעבר בין שירים: A · B · C · D</h1>
+<p class="sub">כלי לימודי להבנת נקודות ה־Hot Cue, מבנה השיר ותזרים המעברים משיר לשיר.</p>
+<div class="colorkey">
+<div class="ck-item"><span class="ck-swatch" style="background:var(--cyan)"></span>שיר נכנס</div>
+<div class="ck-item"><span class="ck-swatch" style="background:var(--amber)"></span>שיר מתנגן / יוצא</div>
+</div>
+</div>
+<section>
+<div class="section-head"><span class="idx">01</span><h2>נקודות ה־Hot Cue על ה־Waveform</h2></div>
+<p class="hint">זהו Waveform של שיר אחד. הנקודות A–B–C–D מסומנות עליו לפי המיקום שלהן בתוך מבנה השיר.</p>
+<div class="diagram-box hotcue-diagram">
+<div class="wave-title"><span class="wave-icon">▂▆▃▇▅▂▆▃</span> Waveform של שיר אחד</div>
+<svg aria-label="Waveform של שיר אחד עם נקודות Hot Cue A B C D" role="img" viewbox="0 0 900 250" width="100%">
+<defs>
+<lineargradient id="waveFill" x1="0" x2="1">
+<stop offset="0%" stop-color="#7c5cff" stop-opacity=".55"></stop>
+<stop offset="55%" stop-color="#7c5cff" stop-opacity=".35"></stop>
+<stop offset="100%" stop-color="#ff6f91" stop-opacity=".6"></stop>
+</lineargradient>
+</defs>
+<rect fill="#0b1016" height="76" rx="10" stroke="#242e39" width="820" x="40" y="48"></rect>
+<path d="M40 86
+        L55 76 L65 95 L76 66 L88 105 L101 73 L115 98 L129 57 L144 112 L158 70 L172 101 L185 62
+        L200 108 L214 75 L230 95 L246 69 L261 103 L278 58 L294 110 L310 72 L326 99 L343 65 L360 107
+        L378 74 L395 96 L411 61 L428 111 L445 68 L462 103 L480 55 L497 113 L514 70 L531 98 L548 60
+        L566 110 L583 66 L600 104 L618 52 L635 116 L652 64 L669 108 L686 48 L704 119 L721 62 L738 111
+        L755 54 L772 116 L790 58 L807 109 L824 66 L840 98 L860 86
+        L860 86 L840 75 L824 97 L807 63 L790 112 L772 56 L755 118 L738 60 L721 109 L704 53 L686 121
+        L669 64 L652 108 L635 58 L618 116 L600 68 L583 103 L566 60 L548 111 L531 71 L514 101 L497 59
+        L480 115 L462 67 L445 105 L428 61 L411 112 L395 71 L378 98 L360 65 L343 107 L326 70 L310 101
+        L294 62 L278 111 L261 69 L246 103 L230 75 L214 98 L200 68 L185 108 L172 72 L158 101 L144 60
+        L129 113 L115 71 L101 105 L88 67 L76 108 L65 76 L55 95 Z" fill="url(#waveFill)" opacity=".9"></path>
+<line opacity=".18" stroke="#eef2f6" x1="40" x2="860" y1="86" y2="86"></line>
+<text fill="#8a97a6" font-size="12" x="55" y="145">תחילת השיר</text>
+<text fill="#8a97a6" font-size="12" x="790" y="145">המשך השיר</text>
+<g class="point-marker" data-point="A"><circle class="click-burst" cx="120" cy="86" fill="none" r="14" stroke="#ff5f8f" stroke-width="3"></circle><circle class="halo" cx="120" cy="86" fill="none" r="14" stroke="#ff5f8f" stroke-width="2"></circle><line stroke="#ff5f8f" stroke-width="3" x1="120" x2="120" y1="40" y2="132"></line><text class="mono-label" fill="#ff5f8f" font-size="20" text-anchor="middle" x="120" y="30">A</text></g>
+<g class="point-marker" data-point="B"><circle class="click-burst" cx="220" cy="86" fill="none" r="14" stroke="#ff9a3d" stroke-width="3"></circle><circle class="halo" cx="220" cy="86" fill="none" r="14" stroke="#ff9a3d" stroke-width="2"></circle><line stroke="#ff9a3d" stroke-width="3" x1="220" x2="220" y1="40" y2="132"></line><text class="mono-label" fill="#ff9a3d" font-size="20" text-anchor="middle" x="220" y="30">B</text></g>
+<g class="point-marker" data-point="C"><circle class="click-burst" cx="560" cy="86" fill="none" r="14" stroke="#61d95e" stroke-width="3"></circle><circle class="halo" cx="560" cy="86" fill="none" r="14" stroke="#61d95e" stroke-width="2"></circle><line stroke="#61d95e" stroke-width="3" x1="560" x2="560" y1="40" y2="132"></line><text class="mono-label" fill="#61d95e" font-size="20" text-anchor="middle" x="560" y="30">C</text></g>
+<g class="point-marker" data-point="D"><circle class="click-burst" cx="660" cy="86" fill="none" r="14" stroke="#8b78ff" stroke-width="3"></circle><circle class="halo" cx="660" cy="86" fill="none" r="14" stroke="#8b78ff" stroke-width="2"></circle><line stroke="#8b78ff" stroke-width="3" x1="660" x2="660" y1="40" y2="132"></line><text class="mono-label" fill="#8b78ff" font-size="20" text-anchor="middle" x="660" y="30">D</text></g>
+<path d="M120,158 Q170,178 220,158" fill="none" stroke="#7c5cff" stroke-width="2"></path>
+<text fill="#7c5cff" font-size="13" text-anchor="middle" x="170" y="199">Extended — אני השיר הנכנס</text>
+<path d="M220,158 Q390,185 560,158" fill="none" stroke="#ff6f91" stroke-width="2"></path>
+<text fill="#ff6f91" font-size="13" text-anchor="middle" x="390" y="220">אני השיר המתנגן</text>
+<path d="M560,158 Q610,178 660,158" fill="none" stroke="#ff6f91" stroke-width="2"></path>
+<text fill="#ff6f91" font-size="13" text-anchor="middle" x="610" y="199">Drop</text>
+<rect class="hotcue-zone zone-a" fill="#ff5f8f" height="94" opacity="0" rx="8" width="24" x="108" y="42"></rect>
+<rect class="hotcue-zone zone-b" fill="#ff9a3d" height="94" opacity="0" rx="8" width="24" x="208" y="42"></rect>
+<rect class="hotcue-zone zone-c" fill="#61d95e" height="94" opacity="0" rx="8" width="24" x="548" y="42"></rect>
+<rect class="hotcue-zone zone-d" fill="#8b78ff" height="94" opacity="0" rx="8" width="24" x="648" y="42"></rect>
+</svg>
+<figcaption>התרשים מציג Waveform של שיר אחד — לא ציר זמן מופשט. סימוני ה־Hot Cue יושבים על נקודות ממשיות בתוך השיר.</figcaption>
+</div>
+<div class="lcd" id="lcd"><span class="caret"></span><span id="lcdText">לחצו על נקודה כדי לראות פירוט כאן…</span></div>
+<div class="legend-grid">
+<div class="point-card" data-point="A"><div class="point-flag flag-a mono">A</div><div><h3>תחילת השיר / תחילת האקסטנדד</h3><p>הרגע שבו השיר מתחיל להתערבב פנימה.</p></div></div>
+<div class="point-card" data-point="B"><div class="point-flag flag-b mono">B</div><div><h3>סוף האקסטנדד</h3><p>סוף החלק שבו השיר נכנס בתוך המיקס.</p></div></div>
+<div class="point-card" data-point="C"><div class="point-flag flag-c mono">C</div><div><h3>תחילת הדרופ</h3><p>בנקודה זו מתחיל המעבר הבא.</p></div></div>
+<div class="point-card" data-point="D"><div class="point-flag flag-d mono">D</div><div><h3>סוף הדרופ</h3><p>סיום מקטע הדרופ המסומן.</p></div></div>
+</div>
+<div class="hotcue-tip">עברו עם העכבר או לחצו על נקודה / כרטיס כדי להדגיש אותה בזמן ההסבר. לחיצה נועלת את ההדגשה.</div>
+</section>
+<section>
+<div class="section-head"><span class="idx">02</span><h2>תזרים המעברים: משיר א׳ לשיר ב׳ לשיר ג׳</h2></div>
+<p class="hint">ציר הזמן מתקדם משמאל לימין. כל שיר מתחיל בהמשך הציר, וחופף לשיר הקודם רק באזור המעבר.</p>
+<div class="flow-panel">
+<div class="flow-stage clean-flow-stage">
+<div class="clean-flow-canvas">
+<div class="clean-time-arrow"><span>הזמן מתקדם משמאל לימין</span></div>
+<!-- Row A -->
+<div class="clean-row row-a">
+<div class="clean-label label-a">שיר א׳</div>
+<div class="clean-wave wave-a">
+<svg aria-label="Waveform שיר א׳" preserveaspectratio="none" viewbox="0 0 1000 70">
+<path d="M0 35 L20 15 L40 55 L60 18 L80 52 L100 14 L120 58 L140 20 L160 49 L180 17 L200 55 L220 22 L240 48 L260 16 L280 57 L300 21 L320 51 L340 13 L360 59 L380 24 L400 47 L420 18 L440 54 L460 20 L480 50 L500 15 L520 58 L540 23 L560 48 L580 17 L600 55 L620 19 L640 53 L660 14 L680 59 L700 22 L720 49 L740 16 L760 56 L780 20 L800 52 L820 15 L840 58 L860 23 L880 48 L900 18 L920 54 L940 20 L960 51 L980 24 L1000 35" fill="none" stroke="#ff6f91" stroke-width="4"></path>
+</svg>
+</div>
+<div class="clean-segment clean-drop a-drop-clean">DROP</div>
+</div>
+<!-- Row B -->
+<div class="clean-row row-b">
+<div class="clean-label label-b">שיר ב׳</div>
+<div class="clean-wave wave-b">
+<svg aria-label="Waveform שיר ב׳" preserveaspectratio="none" viewbox="0 0 1000 70">
+<path d="M0 35 L20 18 L40 52 L60 15 L80 56 L100 22 L120 48 L140 14 L160 59 L180 21 L200 51 L220 17 L240 54 L260 20 L280 50 L300 13 L320 58 L340 23 L360 47 L380 16 L400 55 L420 19 L440 52 L460 15 L480 57 L500 22 L520 49 L540 14 L560 59 L580 20 L600 53 L620 17 L640 56 L660 21 L680 48 L700 15 L720 58 L740 22 L760 50 L780 16 L800 55 L820 19 L840 53 L860 14 L880 59 L900 23 L920 47 L940 18 L960 54 L980 22 L1000 35" fill="none" stroke="#7c5cff" stroke-width="4"></path>
+</svg>
+</div>
+<div class="clean-segment clean-ext b-ext-clean">EXTENDED</div>
+<div class="clean-segment clean-drop b-drop-clean">DROP</div>
+</div>
+<!-- Row C -->
+<div class="clean-row row-c">
+<div class="clean-label label-c">שיר ג׳</div>
+<div class="clean-wave wave-c">
+<svg aria-label="Waveform שיר ג׳" preserveaspectratio="none" viewbox="0 0 1000 70">
+<path d="M0 35 L20 17 L40 53 L60 14 L80 58 L100 21 L120 49 L140 16 L160 56 L180 20 L200 52 L220 13 L240 59 L260 22 L280 48 L300 15 L320 57 L340 19 L360 54 L380 14 L400 58 L420 21 L440 50 L460 16 L480 55 L500 20 L520 52 L540 13 L560 59 L580 23 L600 47 L620 17 L640 56 L660 21 L680 49 L700 15 L720 58 L740 20 L760 53 L780 14 L800 59 L820 22 L840 48 L860 16 L880 55 L900 19 L920 52 L940 15 L960 57 L980 23 L1000 35" fill="none" stroke="#8b78ff" stroke-width="4"></path>
+</svg>
+</div>
+<div class="clean-segment clean-ext c-ext-clean">EXTENDED</div>
+</div>
+<!-- Exact overlap frames -->
+<div class="clean-overlap overlap-ab">
+<span>Extended של שיר ב׳ על Drop של שיר א׳</span>
+</div>
+<div class="clean-overlap overlap-bc">
+<span>Extended של שיר ג׳ על Drop של שיר ב׳</span>
+</div>
+</div>
+</div>
+<div class="flow-explain">
+<div class="flow-step" data-flow-step="1" tabindex="0"><b>1. שיר א׳ מתנגן</b>ה־Extended של שיר ב׳ נכנס על ה־Drop של שיר א׳.</div>
+<div class="flow-step" data-flow-step="2" tabindex="0"><b>2. שיר ב׳ הופך למתנגן</b>לאחר סיום המעבר, שיר ב׳ נשאר לבדו.</div>
+<div class="flow-step" data-flow-step="3" tabindex="0"><b>3. שיר ג׳ נכנס</b>ה־Extended של שיר ג׳ נכנס על ה־Drop של שיר ב׳.</div>
+</div>
+<div class="flow-tip">עברו עם העכבר או לחצו על כל שלב כדי להדגיש אותו על גבי ההדמיה.</div>
+</div>
+</section>
+<section>
+<div class="section-head"><span class="idx">03</span><h2>הבות׳: מעבר של 4 בתים</h2></div>
+<p class="hint">Play מריץ את המעבר בזמן אמת — הטייבלים, המיקסר והפיידרים זזים יחד.</p>
+<div class="scmt-hero scmt-console" id="scmtHero">
+<div class="scmt-console-top">
+<div class="scmt-console-kicker mono">PRE-MIX CHECKLIST</div>
+<div aria-label="SCMT" class="scmt-title">
+<span data-letter="S">S</span><span data-letter="C">C</span><span data-letter="M">M</span><span data-letter="T">T</span>
+</div>
+<div class="scmt-subtitle">ארבעת השלבים שחייבים לבדוק לפני ובתחילת המיקס</div>
+</div>
+<div class="scmt-letters scmt-modules">
+<button class="scmt-letter scmt-module is-active" data-scmt="S" style="--scmt-color:var(--cyan)" type="button">
+<span class="scmt-module-code">S</span>
+<span class="scmt-module-name">Structure</span>
+<span class="scmt-module-caption">התאמת מבנה</span>
+</button>
+<button class="scmt-letter scmt-module" data-scmt="C" style="--scmt-color:var(--hcB)" type="button">
+<span class="scmt-module-code">C</span>
+<span class="scmt-module-name">Cue</span>
+<span class="scmt-module-caption">מיקום נקודת הכניסה</span>
+</button>
+<button class="scmt-letter scmt-module" data-scmt="M" style="--scmt-color:var(--alert)" type="button">
+<span class="scmt-module-code">M</span>
+<span class="scmt-module-name">Matching</span>
+<span class="scmt-module-caption">התאמת מהירות וביטים</span>
+</button>
+<button class="scmt-letter scmt-module" data-scmt="T" style="--scmt-color:var(--hcD)" type="button">
+<span class="scmt-module-code">T</span>
+<span class="scmt-module-name">Trim</span>
+<span class="scmt-module-caption">התאמת עוצמות</span>
+</button>
+</div>
+<div aria-hidden="true" class="scmt-signal-line">
+<span></span><span></span><span></span><span></span>
+</div>
+<div class="scmt-display scmt-console-display" id="scmtDisplay">
+<span class="scmt-display-letter" id="scmtDisplayLetter">S</span>
+<div class="scmt-display-copy">
+<div class="scmt-display-status mono">SELECTED STEP</div>
+<h3 id="scmtDisplayTitle">Structure — התאמת מבנה</h3>
+<p id="scmtDisplayText">מוודאים שאורך האקסטנדד תואם את אורך הדרופ.</p>
+</div>
+</div>
+<div class="scmt-to-prep">
+<span class="mono">פירוט מעשי</span>
+<span class="scmt-down-arrow">↓</span>
+</div>
+</div>
+<div class="prep-panel">
+<div class="prep-title mono">לפני שלוחצים Play — הכנה מוקדמת</div>
+<div class="prep-grid">
+<div class="prep-item"><span class="prep-letter">S</span><div><h4>Structure — התאמת המבנה</h4><p>אורך האקסטנדד תואם לאורך הדרופ.</p></div></div>
+<div class="prep-item"><span class="prep-letter">C</span><div><h4>Cue</h4><p>קבעתי Cue במידה ויש צורך בשינוי אורך האקסטנדד.</p></div></div>
+<div class="prep-item"><span class="prep-letter">M</span><div><h4>Match — שינוי טמפו קבוע</h4><p>הזזתי את פיידר הטמפו כדי ששני השירים יהיו באותו BPM.</p></div></div>
+</div>
+<div class="prep-arrow">↓ מכאן לוחצים Play</div>
+</div>
+<div class="booth">
+<span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+<div class="rig-label">2-CHANNEL DJ INTERFACE</div>
+<div class="sim-controls">
+<button class="btn primary" id="playBtn">▶ הפעלה</button>
+<button class="btn" id="nextStepBtn">⏭ שלב הבא</button>
+<button class="btn" id="resetBtn">↺ איפוס</button>
+<button class="btn speed-btn" data-speed="0.5">½×</button>
+<button class="btn speed-btn is-selected" data-speed="1">1×</button>
+<button class="btn speed-btn" data-speed="1.5">1.5×</button>
+<div class="bar-readout">בית <span class="mono" id="barNum">1</span> / 4 · <span id="speedReadout">1×</span></div>
+</div>
+<div class="sim-layout">
+<div class="sim-main">
+<div class="decks">
+<div class="deck">
+<div class="deck-label">
+<button class="deck-play always-on" id="deckPlayOut">▶</button>
+<b>שיר א׳</b>מתנגן / יוצא
+</div>
+<div class="deck-row">
+<div class="tempo-fader"><span class="tempo-label mono">TEMPO</span><div class="tempo-track"><div class="tempo-mark"></div></div></div>
+<div class="platter" id="platterOut"><div class="vinyl" id="vinylOut"><div class="rim-dot" style="background:var(--amber)"></div><div class="label-center label-out">א</div></div><div class="platter-gloss"></div></div>
+</div>
+<div class="led-meter"><div class="led-fill out" id="meterOut"></div></div>
+<div class="pct mono">עוצמה: <b id="pctOut">100%</b></div>
+</div>
+<div class="mini-mixer">
+<div class="mm-title">EQ · MIXER</div>
+<div class="mm-row"><span class="mm-band-label">HIGH</span><div class="knob out"><div class="ptr"></div></div><div class="mm-spacer"></div><div class="knob in"><div class="ptr"></div></div></div>
+<div class="mm-row"><span class="mm-band-label">MID</span><div class="knob out"><div class="ptr"></div></div><div class="mm-spacer"></div><div class="knob in"><div class="ptr"></div></div></div>
+<div class="mm-row"><span class="mm-band-label low-label">LOW</span><div class="knob out" id="knobLowOut"><div class="ptr"></div></div><div class="mm-swap" id="swapIcon">⇄</div><div class="knob in" id="knobLowIn"><div class="ptr"></div></div></div>
+</div>
+<div class="deck">
+<div class="deck-label">
+<button class="deck-play" id="deckPlayIn">▶</button>
+<b>שיר ב׳</b>נכנס
+</div>
+<div class="deck-row">
+<div class="platter" id="platterIn"><div class="vinyl" id="vinylIn"><div class="rim-dot" style="background:var(--cyan)"></div><div class="label-center label-in">ב</div></div><div class="platter-gloss"></div>
+<svg class="jog-hand" height="47" id="jogHand" viewbox="0 0 60 70" width="40"><rect fill="#e9edf1" height="34" rx="4.5" width="9" x="16" y="6"></rect><rect fill="#e9edf1" height="38" rx="4.5" width="9" x="27" y="2"></rect><rect fill="#e9edf1" height="34" rx="4.5" width="9" x="38" y="6"></rect><rect fill="#e9edf1" height="24" rx="7" transform="rotate(-25 11 42)" width="14" x="4" y="30"></rect><rect fill="#e9edf1" height="30" rx="14" width="32" x="14" y="34"></rect></svg>
+</div>
+<div class="tempo-fader"><span class="tempo-label mono">TEMPO</span><div class="tempo-track"><div class="tempo-mark"></div></div></div>
+</div>
+<div class="led-meter"><div class="led-fill in" id="meterIn"></div></div>
+<div class="pct mono">עוצמה: <b id="pctIn">0%</b></div>
+</div>
+</div>
+<div class="mixer-bottom-row"><div class="channel-strip">
+<div class="fader-unit"><div class="fader-slot"><div class="fader-groove"></div><div class="fader-cap out" id="faderOut"></div>
+</div><div class="fader-num mono">1</div><div class="fader-name">שיר א׳</div></div>
+<div class="fader-unit"><div class="fader-slot"><div class="fader-groove"></div><div class="fader-cap in" id="faderIn"></div></div><div class="fader-num mono">2</div><div class="fader-name">שיר ב׳</div></div>
+</div><div class="fx-module"><div class="fx-title mono">FX · שיר א׳</div><div class="fx-row"><button class="fx-toggle" id="fxToggle">OFF</button><div class="knob big" id="depthKnob"><div class="ptr"></div></div></div></div></div>
+<div class="timeline" style="margin-top:26px">
+<div class="bar-seg">בית 1</div><div class="bar-seg">בית 2</div><div class="bar-seg">בית 3</div><div class="bar-seg">בית 4</div>
+<div class="fx-zone"></div><div class="swap-mark"></div><div class="playhead" id="playhead"></div>
+</div>
+<input id="scrub" max="1000" min="0" type="range" value="0"/>
+<div class="events"><span class="badge mono" id="badgeSwap">⚡ BASS SWAP · בית 3</span><span class="badge mono" id="badgeFx">✺ FX + CUT · סוף בית 4</span></div>
+<div class="caption"><span class="tag" id="capTag">בתחילת בית 1</span><h3 id="capTitle">פליי על השיר הנכנס</h3><p id="capText">מפעילים את השיר הנכנס בתחילת הבית הראשון.</p></div>
+</div>
+<aside class="live-steps">
+<h3>שלבי המעבר בזמן אמת</h3>
+<div class="live-steps-grid">
+<div class="live-step" data-step="0"><span class="num">1</span><b>Play</b><br/>מפעילים את השיר הנכנס.</div>
+<div class="live-step" data-step="1"><span class="num">2</span><b>Jog</b><br/>שינוי טמפו זמני והתאמת הביטים.</div>
+<div class="live-step" data-step="2"><span class="num">3</span><b>Trim</b><br/>התאמת עוצמות הערוצים.</div>
+<div class="live-step" data-step="3"><span class="num">4</span><b>Bass Swap</b><br/>החלפת התדרים הנמוכים.</div>
+<div class="live-step" data-step="4"><span class="num">5</span><b>FX + Exit</b><br/>אפקט והוצאת השיר היוצא.</div>
+</div>
+</aside>
+</div>
+</div>
+<p class="note">הסיבוב, המדים והעיתוי הם המחשה חזותית — לא אודיו אמיתי.</p>
+</section>
+<footer>A · B · C · D — DECK TRANSITION SIMULATOR</footer>
+</div>
+<script>
+(function(){
+  var details={
+    A:{title:"נקודה A — תחילת השיר / תחילת האקסטנדד",text:"הרגע שבו השיר מתחיל להתערבב פנימה.",color:"#ff5f8f"},
+    B:{title:"נקודה B — סוף האקסטנדד",text:"סוף החלק שבו השיר נכנס בתוך המיקס.",color:"#ff9a3d"},
+    C:{title:"נקודה C — תחילת הדרופ",text:"בנקודה זו מתחיל המעבר הבא.",color:"#61d95e"},
+    D:{title:"נקודה D — סוף הדרופ",text:"סיום מקטע הדרופ המסומן.",color:"#8b78ff"}
+  };
+  var lcdText=document.getElementById('lcdText'),lcdCaret=document.querySelector('.lcd .caret'),lcdBox=document.getElementById('lcd');
+  var markers=document.querySelectorAll('.point-marker'),cards=document.querySelectorAll('.point-card');
+  function selectPoint(p){
+    var c=details[p].color;
+    markers.forEach(m=>m.classList.toggle('is-active',m.dataset.point===p));
+    cards.forEach(card=>{var a=card.dataset.point===p;card.classList.toggle('is-active',a);card.style.borderColor=a?c:"";});
+    lcdText.textContent=details[p].title+" — "+details[p].text;lcdText.style.color=c;lcdCaret.style.background=c;lcdBox.style.borderColor=c;
+  }
+  var hotcueDiagram=document.querySelector('.hotcue-diagram');
+  var lockedHotcue=null;
+
+  function clearHotcueFocus(){
+    hotcueDiagram.classList.remove('hotcue-teach-mode');
+    markers.forEach(function(m){m.classList.remove('hotcue-focus');});
+    cards.forEach(function(c){c.classList.remove('hotcue-card-focus');});
+  }
+
+  function focusHotcue(point,lock){
+    clearHotcueFocus();
+    hotcueDiagram.classList.add('hotcue-teach-mode');
+    var marker=document.querySelector('.point-marker[data-point="'+point+'"]');
+    var card=document.querySelector('.point-card[data-point="'+point+'"]');
+    if(marker) marker.classList.add('hotcue-focus');
+    if(card) card.classList.add('hotcue-card-focus');
+    selectPoint(point);
+    if(lock) lockedHotcue=point;
+  }
+
+  function burstHotcue(point){
+    var marker=document.querySelector('.point-marker[data-point="'+point+'"]');
+    var burst=marker&&marker.querySelector('.click-burst');
+    if(burst){burst.classList.remove('run');void burst.getBBox();burst.classList.add('run');}
+  }
+
+  markers.forEach(function(m){
+    var point=m.dataset.point;
+    m.setAttribute('tabindex','0');
+    m.addEventListener('mouseenter',function(){if(!lockedHotcue)focusHotcue(point,false);});
+    m.addEventListener('mouseleave',function(){if(!lockedHotcue)clearHotcueFocus();});
+    m.addEventListener('focus',function(){if(!lockedHotcue)focusHotcue(point,false);});
+    m.addEventListener('blur',function(){if(!lockedHotcue)clearHotcueFocus();});
+    m.addEventListener('click',function(){
+      burstHotcue(point);
+      if(lockedHotcue===point){lockedHotcue=null;clearHotcueFocus();}
+      else{lockedHotcue=point;focusHotcue(point,true);}
+    });
+    m.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();m.dispatchEvent(new MouseEvent('click',{bubbles:true}));}
+    });
+  });
+
+  cards.forEach(function(c){
+    var point=c.dataset.point;
+    c.setAttribute('tabindex','0');
+    c.addEventListener('mouseenter',function(){if(!lockedHotcue)focusHotcue(point,false);});
+    c.addEventListener('mouseleave',function(){if(!lockedHotcue)clearHotcueFocus();});
+    c.addEventListener('focus',function(){if(!lockedHotcue)focusHotcue(point,false);});
+    c.addEventListener('blur',function(){if(!lockedHotcue)clearHotcueFocus();});
+    c.addEventListener('click',function(){
+      burstHotcue(point);
+      if(lockedHotcue===point){lockedHotcue=null;clearHotcueFocus();}
+      else{lockedHotcue=point;focusHotcue(point,true);}
+    });
+    c.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click();}
+    });
+  });
+
+  document.addEventListener('click',function(e){
+    if(lockedHotcue && !e.target.closest('.point-card[data-point]') && !e.target.closest('.point-marker')){
+      lockedHotcue=null;
+      clearHotcueFocus();
+    }
+  });
+
+  var playBtn=document.getElementById('playBtn'),resetBtn=document.getElementById('resetBtn'),scrub=document.getElementById('scrub'),speedReadout=document.getElementById('speedReadout');
+  var playhead=document.getElementById('playhead'),meterIn=document.getElementById('meterIn'),meterOut=document.getElementById('meterOut');
+  var faderIn=document.getElementById('faderIn'),faderOut=document.getElementById('faderOut'),fxToggle=document.getElementById('fxToggle');
+  var depthKnob=document.querySelector('#depthKnob .ptr'),pctIn=document.getElementById('pctIn'),pctOut=document.getElementById('pctOut'),barNum=document.getElementById('barNum');
+  var badgeSwap=document.getElementById('badgeSwap'),badgeFx=document.getElementById('badgeFx'),capTag=document.getElementById('capTag'),capTitle=document.getElementById('capTitle'),capText=document.getElementById('capText');
+  var vinylIn=document.getElementById('vinylIn'),vinylOut=document.getElementById('vinylOut'),jogHand=document.getElementById('jogHand');
+  var knobLowOut=document.querySelector('#knobLowOut .ptr'),knobLowIn=document.querySelector('#knobLowIn .ptr'),swapIcon=document.getElementById('swapIcon'),liveSteps=[...document.querySelectorAll('.live-step')];depthKnob.style.transform="translateX(-50%) rotate(-150deg)";
+  var steps=[
+    {tag:"בתחילת בית 1",title:"פליי על השיר הנכנס",text:"מפעילים את השיר הנכנס בתחילת הבית הראשון."},
+    {tag:"מיד אחרי הפליי",title:"שינוי טמפו זמני בעזרת הג׳וג",text:"תיקון קצר של הביטים בעזרת הג׳וג. בשלב הזה הווליום של שיר ב׳ עדיין על 0."},
+    {tag:"לאחר תיקון הג׳וג ועד סוף בית 2",title:"העלאת ווליום השיר הנכנס",text:"רק לאחר תיקון הביטים מתחילים להעלות את שיר ב׳ מ־0 עד 100% בסוף בית 2."},
+    {tag:"תחילת בית 3",title:"החלפת תדרים נמוכים בבום",text:"בתחילת בית 3 מבצעים החלפה מיידית של התדרים הנמוכים בין שני השירים."},
+    {tag:"סוף בית 4",title:"אפקט והוצאת השיר היוצא",text:"נשארים עם השיר הנכנס, שהופך לשיר המתנגן."}
+  ];
+  var thresholds=[0,.02,.10,.5,.9],playing=false,norm=0,lastTs=null,duration=32000,speed=1,curIn=10,curOut=100,jogActive=false,manualFx=false;
+  function incomingLevel(n){if(n<=.10)return 0;if(n<.5)return 100*((n-.10)/.40);return 100}
+  function outgoingLevel(n){if(n<.9)return 100;return 100*(1-(n-.9)/.1)}
+  function activeStep(n){var i=0;thresholds.forEach((t,x)=>{if(n>=t)i=x});return i}
+  function setFader(el,l){el.style.bottom=(12+110*(l/100))+"px"}
+  function render(n){
+    curIn=incomingLevel(n);curOut=outgoingLevel(n);meterIn.style.width=curIn+"%";meterOut.style.width=curOut+"%";
+    pctIn.textContent=Math.round(curIn)+"%";pctOut.textContent=Math.round(curOut)+"%";setFader(faderIn,curIn);setFader(faderOut,curOut);
+    playhead.style.right=(100-n*100)+"%";barNum.textContent=Math.min(4,Math.floor(n*4)+1);jogActive=n>=.02&&n<.10;jogHand.classList.toggle('active',jogActive);
+    if(deckPlayOut){deckPlayOut.classList.add('on');}
+    if(deckPlayIn){
+      if(n>=0.0005){
+        deckPlayIn.classList.add('on');
+        if(!playTriggered){
+          playTriggered=true;
+          deckPlayIn.classList.add('press');
+          setTimeout(function(){deckPlayIn.classList.remove('press');},280);
+        }
+      }else{
+        deckPlayIn.classList.remove('on');
+        playTriggered=false;
+      }
+    }
+    var sp=n<.5?0:1;knobLowOut.style.transform="translateX(-50%) rotate("+(-120*sp)+"deg)";knobLowIn.style.transform="translateX(-50%) rotate("+(-120+120*sp)+"deg)";
+    var swap=n>=.5&&n<.525;badgeSwap.classList.toggle('on',swap);swapIcon.classList.toggle('on',swap);
+    var fx=n>=.9 || manualFx;badgeFx.classList.toggle('on',fx);fxToggle.classList.toggle('on',fx);fxToggle.textContent=fx?"ON":"OFF";var fxProgress=n<.9?0:Math.min(1,(n-.9)/.1);depthKnob.style.transform="translateX(-50%) rotate("+(-150+150*fxProgress)+"deg)";
+    var si=activeStep(n),s=steps[si];
+    capTag.textContent=s.tag;capTitle.textContent=s.title;capText.textContent=s.text;
+    liveSteps.forEach(function(el,idx){
+      el.classList.toggle('active',idx===si);
+      el.classList.toggle('done',idx<si);
+    });
+    scrub.value=Math.round(n*1000);
+  }
+  function step(ts){if(!playing)return;if(lastTs===null)lastTs=ts;norm+=((ts-lastTs)/duration)*speed;lastTs=ts;if(norm>=1){norm=1;playing=false;playBtn.textContent="▶ הפעלה"}render(norm);if(playing)requestAnimationFrame(step)}
+  playBtn.onclick=()=>{if(playing){playing=false;playBtn.textContent="▶ הפעלה";return}if(norm>=.999)norm=0;playing=true;lastTs=null;playBtn.textContent="⏸ השהיה";requestAnimationFrame(step)};
+  resetBtn.onclick=()=>{playing=false;norm=0;lastTs=null;playBtn.textContent="▶ הפעלה";render(0)};
+  scrub.oninput=()=>{playing=false;playBtn.textContent="▶ הפעלה";norm=+scrub.value/1000;render(norm)};
+
+  document.querySelectorAll('.speed-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      speed=parseFloat(btn.dataset.speed);
+      speedReadout.textContent=btn.textContent;
+      document.querySelectorAll('.speed-btn').forEach(b=>b.classList.toggle('is-selected',b===btn));
+    });
+  });
+
+  fxToggle.addEventListener('click',function(){
+    manualFx=!manualFx;
+    render(norm);
+  });
+
+  document.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('pointerdown',function(e){
+      btn.classList.add('pressed');
+      btn.style.setProperty('--rx',(e.offsetX||btn.clientWidth/2)+'px');
+      btn.style.setProperty('--ry',(e.offsetY||btn.clientHeight/2)+'px');
+      btn.classList.remove('ripple');
+      void btn.offsetWidth;
+      btn.classList.add('ripple');
+    });
+    ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,()=>btn.classList.remove('pressed')));
+  });
+
+
+  
+  
+  // Deck PLAY indicators
+  var deckPlayOut=document.getElementById('deckPlayOut');
+  var deckPlayIn=document.getElementById('deckPlayIn');
+  if(deckPlayOut) deckPlayOut.classList.add('on');
+
+  var playTriggered=false;
+
+  // Next teaching checkpoint button
+  var nextStepBtn=document.getElementById('nextStepBtn');
+  var checkpointOrder=[0.000,0.045,0.180,0.500,0.920];
+
+  nextStepBtn.addEventListener('click',function(){
+    playing=false;
+    lastTs=null;
+    playBtn.textContent="▶ הפעלה";
+
+    var target=checkpointOrder[checkpointOrder.length-1];
+    for(var i=0;i<checkpointOrder.length;i++){
+      if(norm < checkpointOrder[i]-0.0005){
+        target=checkpointOrder[i];
+        break;
+      }
+    }
+
+    norm=target;
+    render(norm);
+
+    var idx=checkpointOrder.indexOf(target);
+    if(idx>-1 && liveSteps[idx]){
+      liveSteps[idx].classList.remove('is-jump-target');
+      void liveSteps[idx].offsetWidth;
+      liveSteps[idx].classList.add('is-jump-target');
+      setTimeout(function(el){
+        return function(){el.classList.remove('is-jump-target');}
+      }(liveSteps[idx]),700);
+    }
+  });
+
+
+  // Click any real-time stage to pause the simulator at that exact teaching checkpoint.
+  var liveStepCheckpoints={
+    0:0.000,  // Play
+    1:0.045,  // Short jog correction
+    2:0.180,  // Volume rise after jog correction
+    3:0.500,  // Instant bass swap at start of bar 3
+    4:0.920   // FX and exit near end of bar 4
+  };
+
+  liveSteps.forEach(function(stepEl){
+    stepEl.setAttribute('tabindex','0');
+    stepEl.setAttribute('role','button');
+    stepEl.setAttribute('aria-label','עצירה בנקודת הזמן של '+stepEl.innerText.trim());
+
+    function jumpToStage(){
+      var index=parseInt(stepEl.dataset.step,10);
+      if(Number.isNaN(index) || liveStepCheckpoints[index]===undefined) return;
+
+      playing=false;
+      lastTs=null;
+      playBtn.textContent="▶ הפעלה";
+      norm=liveStepCheckpoints[index];
+      render(norm);
+
+      stepEl.classList.remove('is-jump-target');
+      void stepEl.offsetWidth;
+      stepEl.classList.add('is-jump-target');
+      setTimeout(function(){stepEl.classList.remove('is-jump-target');},700);
+    }
+
+    stepEl.addEventListener('click',jumpToStage);
+    stepEl.addEventListener('keydown',function(e){
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        jumpToStage();
+      }
+    });
+  });
+
+  render(0);
+  var rIn=0,rOut=0,last=null;function spin(ts){if(last===null)last=ts;var dt=(ts-last)/1000;last=ts;rOut+=curOut/100*130*dt;rIn+=curIn/100*130*dt;var wob=jogActive?Math.sin(ts/45)*5:0;vinylOut.style.transform="rotate("+rOut+"deg)";vinylIn.style.transform="rotate("+(rIn+wob)+"deg)";requestAnimationFrame(spin)}requestAnimationFrame(spin);
+
+
+
+  // Interactive SCMT teaching block.
+  var scmtData={
+    S:{
+      title:"Structure — התאמת מבנה",
+      text:"מוודאים שאורך האקסטנדד תואם את אורך הדרופ.",
+      color:"#7c5cff"
+    },
+    C:{
+      title:"Cue",
+      text:"קובעים את ה־Cue לפי הצורך, במידה שצריך לשנות את אורך האקסטנדד.",
+      color:"#ff9a3d"
+    },
+    M:{
+      title:"Matching — התאמת מהירות",
+      text:"קבועה — לפני המיקס, מתאימים את ה־BPM של שני השירים בעזרת פיידר הטמפו.\nזמנית — לאחר לחיצת Play על השיר הנכנס, מתאימים את הביטים בעזרת הג׳וג (Beat Match).",
+      color:"#43d9b8"
+    },
+    T:{
+      title:"Trim",
+      text:"מוודאים שה־Trim של שני השירים תואם, כדי שלא יהיו נפילות או עליות ווליום קיצוניות.",
+      color:"#8b78ff"
+    }
+  };
+  var scmtButtons=[...document.querySelectorAll('.scmt-letter')];
+  var scmtDisplay=document.getElementById('scmtDisplay');
+  var scmtDisplayLetter=document.getElementById('scmtDisplayLetter');
+  var scmtDisplayTitle=document.getElementById('scmtDisplayTitle');
+  var scmtDisplayText=document.getElementById('scmtDisplayText');
+  var lockedScmt=null;
+
+  function showScmt(letter,lock){
+    var data=scmtData[letter];
+    scmtButtons.forEach(function(btn){btn.classList.toggle('is-active',btn.dataset.scmt===letter);});
+    scmtDisplay.classList.add('is-changing');
+    setTimeout(function(){
+      scmtDisplayLetter.textContent=letter;
+      scmtDisplayLetter.style.background=data.color;
+      scmtDisplayLetter.style.boxShadow="0 0 18px "+data.color+"66";
+      scmtDisplayTitle.textContent=data.title;
+      scmtDisplayTitle.style.color=data.color;
+      scmtDisplayText.textContent=data.text;
+      scmtDisplay.style.borderColor=data.color;
+      scmtDisplay.style.boxShadow="0 0 22px "+data.color+"22";
+      scmtDisplay.classList.remove('is-changing');
+    },110);
+    if(lock) lockedScmt=letter;
+  }
+
+  scmtButtons.forEach(function(btn){
+    var letter=btn.dataset.scmt;
+    btn.addEventListener('mouseenter',function(){if(!lockedScmt)showScmt(letter,false);});
+    btn.addEventListener('focus',function(){if(!lockedScmt)showScmt(letter,false);});
+    btn.addEventListener('click',function(){
+      if(lockedScmt===letter){
+        lockedScmt=null;
+      }else{
+        lockedScmt=letter;
+        showScmt(letter,true);
+      }
+    });
+  });
+
+  // Mouse-driven highlighting for the three-song explanation.
+  var flowStage=document.querySelector('.clean-flow-stage');
+  var flowCards=[...document.querySelectorAll('.flow-step[data-flow-step]')];
+  var lockedFlowStep=null;
+
+  function clearFlowFocus(){
+    flowStage.classList.remove('teach-mode');
+    document.querySelectorAll('.focus-target').forEach(function(el){el.classList.remove('focus-target');});
+    flowCards.forEach(function(card){card.classList.remove('is-focused');});
+  }
+
+  function focusFlowStep(step,lock){
+    clearFlowFocus();
+    flowStage.classList.add('teach-mode');
+    var card=document.querySelector('.flow-step[data-flow-step="'+step+'"]');
+    if(card) card.classList.add('is-focused');
+
+    var targets=[];
+    if(step==="1"){
+      targets=[
+        document.querySelector('.row-a'),
+        document.querySelector('.row-b'),
+        document.querySelector('.overlap-ab')
+      ];
+    }else if(step==="2"){
+      targets=[document.querySelector('.row-b')];
+    }else if(step==="3"){
+      targets=[
+        document.querySelector('.row-b'),
+        document.querySelector('.row-c'),
+        document.querySelector('.overlap-bc')
+      ];
+    }
+    targets.filter(Boolean).forEach(function(el){el.classList.add('focus-target');});
+    if(lock) lockedFlowStep=step;
+  }
+
+  flowCards.forEach(function(card){
+    var step=card.dataset.flowStep;
+    card.addEventListener('mouseenter',function(){
+      if(!lockedFlowStep) focusFlowStep(step,false);
+    });
+    card.addEventListener('mouseleave',function(){
+      if(!lockedFlowStep) clearFlowFocus();
+    });
+    card.addEventListener('focus',function(){
+      if(!lockedFlowStep) focusFlowStep(step,false);
+    });
+    card.addEventListener('blur',function(){
+      if(!lockedFlowStep) clearFlowFocus();
+    });
+    card.addEventListener('click',function(){
+      if(lockedFlowStep===step){
+        lockedFlowStep=null;
+        clearFlowFocus();
+      }else{
+        lockedFlowStep=step;
+        focusFlowStep(step,true);
+      }
+    });
+    card.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+
+  document.addEventListener('click',function(e){
+    if(lockedFlowStep && !e.target.closest('.flow-step[data-flow-step]') && !e.target.closest('.flow-stage')){
+      lockedFlowStep=null;
+      clearFlowFocus();
+    }
+  });
+
+  // Scroll-triggered animations for SCMT preparation and the three-song flow.
+  var observed = document.querySelectorAll('.prep-panel,.flow-panel,.scmt-hero');
+  if('IntersectionObserver' in window){
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    },{threshold:.28});
+    observed.forEach(function(el){observer.observe(el);});
+  }else{
+    observed.forEach(function(el){el.classList.add('in-view');});
+  }
+
+})();
+</script>
+</body>
+</html>
