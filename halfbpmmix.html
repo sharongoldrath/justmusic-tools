@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Half BPM Mix — Just Music</title>
+<style>
+:root{
+  --bg:#080808;--bg2:#0e0e0f;--panel:#141416;--panel2:#1b1b1e;
+  --line:#3b3b42;--line2:#55555e;--text:#fff;--muted:#b8b8c2;
+  --yellow:#f4ff00;--blue:#3d7eff;--cyan:#42d9ff;--pink:#ff4f88;
+  --orange:#ff9b42;--green:#55e68a;--red:#ff5576;
+  --shadow:0 22px 70px rgba(0,0,0,.48);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Arial Hebrew",Arial,sans-serif;
+  background:
+    radial-gradient(900px 520px at 10% -10%,rgba(61,126,255,.14),transparent 58%),
+    radial-gradient(700px 440px at 100% 0,rgba(255,79,136,.10),transparent 58%),
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+    var(--bg);
+  background-size:auto,auto,42px 42px,42px 42px,auto;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit}
+.app{width:min(1120px,94vw);margin:0 auto;padding:24px 0 70px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#ff2c78,#ca175d);display:grid;place-items:center;font-weight:950;font-size:17px;box-shadow:0 10px 30px rgba(255,44,120,.25)}
+.brandText b{display:block;font-size:16px}.brandText span{font-size:11px;color:var(--muted);letter-spacing:.12em}
+.langSwitch{display:flex;background:#111114;border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+.langBtn{border:0;background:transparent;color:#8f8f99;padding:7px 10px;border-radius:7px;cursor:pointer;font-weight:800}.langBtn.active{background:#29292e;color:#fff}
+.hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(29,29,33,.96),rgba(15,15,17,.98));padding:34px;box-shadow:var(--shadow)}
+.hero:after{content:"";position:absolute;inset:auto -12% -65% auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(61,126,255,.14),transparent 66%);pointer-events:none}
+.eyebrow{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan);letter-spacing:.16em;margin-bottom:12px}
+h1{margin:0;font-size:clamp(36px,6vw,68px);line-height:.95;letter-spacing:-.04em}
+.hero p{max-width:700px;color:var(--muted);font-size:17px;font-weight:650;margin:16px 0 0;line-height:1.55}
+.problem{display:inline-flex;align-items:center;gap:9px;margin-top:22px;border:1px solid rgba(255,85,118,.45);background:rgba(255,85,118,.08);padding:10px 13px;border-radius:10px;color:#ffd6df;font-weight:750}
+.problem i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 14px var(--red)}
+.section{margin-top:24px;border:1px solid var(--line);border-radius:22px;background:rgba(20,20,22,.94);padding:24px;box-shadow:0 16px 50px rgba(0,0,0,.25)}
+.sectionHead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.sectionHead h2{margin:0;font-size:22px}.sectionHead p{margin:4px 0 0;color:var(--muted);font-size:14px}.stepTag{font:800 11px ui-monospace,SFMono-Regular,monospace;color:#8f8f99;letter-spacing:.12em}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.btn{border:1px solid var(--line2);background:linear-gradient(180deg,#24242a,#17171b);color:#fff;border-radius:10px;padding:10px 15px;cursor:pointer;font-weight:800;transition:.15s;box-shadow:0 7px 15px rgba(0,0,0,.25)}
+.btn:hover{transform:translateY(-2px);border-color:#7b7b86}.btn:active{transform:translateY(0) scale(.98)}
+.btn.primary{border-color:var(--cyan);box-shadow:0 0 20px rgba(66,217,255,.15)}
+.btn.active{color:#080808;background:var(--yellow);border-color:var(--yellow)}
+.readout{margin-inline-start:auto;font:800 12px ui-monospace,SFMono-Regular,monospace;color:var(--cyan);background:#0a0d10;border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+.visualizer{position:relative;border:1px solid var(--line);background:#0b0c0f;border-radius:16px;padding:18px;overflow:hidden}
+.visualizer:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.9%,rgba(255,255,255,.035) 50%,transparent 50.1%);pointer-events:none}
+.track{position:relative;margin:12px 0 26px}.track:last-child{margin-bottom:7px}
+.trackTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}.trackName{display:flex;align-items:center;gap:9px;font-weight:900}.dot{width:10px;height:10px;border-radius:50%}.fast .dot{background:var(--cyan);box-shadow:0 0 14px var(--cyan)}.slow .dot{background:var(--orange);box-shadow:0 0 14px var(--orange)}
+.bpm{font:900 13px ui-monospace,SFMono-Regular,monospace;color:var(--muted)}
+.barline{position:relative;height:94px;border:1px solid #34343b;border-radius:11px;overflow:hidden;background:#111216;display:grid}
+.fast .barline{grid-template-columns:repeat(4,1fr)}.slow .barline{grid-template-columns:repeat(2,1fr)}
+.phrase{position:relative;border-inline-start:1px solid #44454e;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;color:#bdbdc6;font:800 11px ui-monospace,SFMono-Regular,monospace}.phrase:first-child{border-inline-start:0}
+.phrase.complete{background:linear-gradient(180deg,transparent,rgba(85,230,138,.12));color:var(--green)}
+.beats{position:absolute;inset:0;display:grid;grid-template-columns:repeat(16,1fr);pointer-events:none}.slow .beats{grid-template-columns:repeat(8,1fr)}
+.beat{border-inline-start:1px solid rgba(255,255,255,.065);position:relative}.beat.major{border-color:rgba(255,255,255,.16)}.beat:after{content:"";position:absolute;top:18px;left:50%;width:3px;height:28px;border-radius:3px;transform:translateX(-50%) scaleY(.45);transform-origin:bottom;background:currentColor;opacity:.35;transition:.09s}.fast .beat{color:var(--cyan)}.slow .beat{color:var(--orange)}.beat.hit:after{opacity:1;transform:translateX(-50%) scaleY(1);box-shadow:0 0 14px currentColor}
+.playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--pink);left:0;z-index:8;box-shadow:0 0 12px rgba(255,79,136,.8);pointer-events:none}.playhead:before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--pink)}
+.equation{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:18px}.eqBlock{min-width:150px;text-align:center;background:#111216;border:1px solid var(--line);border-radius:13px;padding:13px 18px}.eqBlock b{display:block;font-size:28px}.eqBlock span{color:var(--muted);font-size:12px;font-weight:750}.equals{font-size:28px;color:#7f7f89}.equation.aha .eqBlock{border-color:rgba(85,230,138,.65);box-shadow:0 0 22px rgba(85,230,138,.14)}.equation.aha .equals{color:var(--green)}
+.message{height:32px;margin-top:12px;text-align:center;color:var(--muted);font-weight:750;transition:.25s}.message.aha{color:var(--green);font-size:17px}
+.modeWrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}.modeCard{border:1px solid var(--line);background:#111216;border-radius:14px;padding:16px;transition:.22s}.modeCard.dim{opacity:.38;filter:saturate(.4)}.modeTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.modeTitle b{font-size:15px}.modeTitle span{font:800 11px ui-monospace,SFMono-Regular,monospace;color:var(--muted)}
+.miniTimeline{height:70px;display:grid;border:1px solid #34343b;border-radius:9px;overflow:hidden}.normalMini{grid-template-columns:repeat(4,1fr)}.halfMini{grid-template-columns:repeat(2,1fr)}.miniBar{display:grid;place-items:center;border-inline-start:1px solid #3b3b43;color:#b8b8c2;font-size:12px;font-weight:800}.miniBar:first-child{border-inline-start:0}.normalMini .miniBar{background:linear-gradient(180deg,rgba(66,217,255,.06),transparent)}.halfMini .miniBar{background:linear-gradient(180deg,rgba(255,155,66,.08),transparent)}
+.workflow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.stage{position:relative;text-align:center;border:1px solid var(--line);background:#111216;border-radius:13px;padding:14px 8px;min-height:96px;display:flex;flex-direction:column;justify-content:center;transition:.2s}.stage:not(:last-child):after{content:"←";position:absolute;left:-11px;top:50%;transform:translateY(-50%);color:#777780;z-index:3}.stage small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.stage b{font-size:15px}.stage em{font-style:normal;font:800 11px ui-monospace,SFMono-Regular,monospace;color:var(--cyan);margin-top:7px}.stage.active{border-color:var(--yellow);box-shadow:0 0 22px rgba(244,255,0,.12);transform:translateY(-2px)}
+.insight{margin-top:18px;border:1px solid rgba(61,126,255,.5);background:linear-gradient(135deg,rgba(61,126,255,.11),rgba(66,217,255,.04));border-radius:15px;padding:17px;display:flex;align-items:center;gap:14px}.insightIcon{width:40px;height:40px;border-radius:12px;background:var(--blue);display:grid;place-items:center;font-weight:950}.insight p{margin:0;color:#d9e4ff;font-weight:700}.insight strong{color:#fff}
+.footer{text-align:center;margin-top:20px;color:#777780;font:700 11px ui-monospace,SFMono-Regular,monospace;letter-spacing:.11em}
+[dir="ltr"] .stage:not(:last-child):after{content:"→";left:auto;right:-11px}
+@media(max-width:760px){.hero{padding:26px 20px}.section{padding:18px 14px}.sectionHead{align-items:flex-start}.modeWrap{grid-template-columns:1fr}.workflow{grid-template-columns:1fr 1fr}.stage:nth-child(2):after{display:none}.readout{width:100%;margin-inline-start:0;text-align:center}.app{width:min(96vw,1120px)}}
+@media(max-width:450px){.topbar{align-items:flex-start}.brandText span{display:none}.barline{height:84px}.eqBlock{min-width:120px}.workflow{gap:8px}.stage{min-height:88px;padding:10px 5px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* V1.1 — main learning toggle + exact beat/grid alignment */
+.transformControls{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.transformBtn{border:1px solid var(--cyan);background:linear-gradient(180deg,rgba(61,126,255,.2),rgba(61,126,255,.08));color:#fff;padding:12px 18px;border-radius:11px;font-weight:900;cursor:pointer;transition:.2s;box-shadow:0 0 18px rgba(61,126,255,.12)}
+.transformBtn:hover{transform:translateY(-2px);box-shadow:0 0 24px rgba(61,126,255,.24)}
+.transformBtn.half{border-color:var(--orange);background:linear-gradient(180deg,rgba(255,155,66,.2),rgba(255,155,66,.08));box-shadow:0 0 22px rgba(255,155,66,.18)}
+.modeStatus{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.08em}
+.barline,.beats,.miniTimeline{direction:ltr!important}
+.phrase,.miniBar{direction:rtl}
+.beat{border-inline-start:1px solid rgba(255,255,255,.065)}
+.beat:after{left:0!important;transform:translateX(-50%) scaleY(.45)!important}
+.beat.hit:after{transform:translateX(-50%) scaleY(1)!important}
+.slow.normalMode .dot{background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.slow.normalMode .beat{color:var(--cyan)}
+.visualizer{transition:.3s}
+.track.slow,.track.slow .barline,.track.slow .beat,.track.slow .phrase{transition:.3s}
+
+</style>
+
+<style>
+.timeline,.grid,.timeline-wrap,.grid-wrap,.bars,.beats,.ruler{
+direction:ltr !important;
+}
+.timeline *,.grid *,.timeline-wrap *,.grid-wrap *,.bars *,.beats *,.ruler *{
+direction:ltr !important;
+}
+.beat,.beat-marker,.grid-line,.tick{
+transform:translateX(-50%);
+}
+</style>
+
+
+<style>
+.bpmBuilder{
+  margin:18px 0 16px;
+  padding:18px;
+  border:1px solid rgba(244,255,0,.38);
+  border-radius:16px;
+  background:
+    linear-gradient(135deg,rgba(244,255,0,.075),transparent 48%),
+    #101014;
+}
+.bpmBuilderTop{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;margin-bottom:14px
+}
+.bpmBuilderTitle{font-weight:900;font-size:16px}
+.bpmBuilderHint{color:var(--muted);font-size:13px;font-weight:650;margin-top:4px}
+.bpmBuilderControls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.bpmInputWrap{display:grid;gap:6px}
+.bpmInputWrap label{font-size:11px;color:var(--muted);font-weight:850;letter-spacing:.08em}
+.bpmInput{
+  width:118px;height:44px;padding:0 12px;border-radius:9px;
+  border:1px solid #4b4b54;background:#07070a;color:#fff;
+  font:850 18px ui-monospace,SFMono-Regular,monospace;outline:none
+}
+.bpmInput:focus{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(244,255,0,.1)}
+.ratioToggle{display:flex;padding:4px;border:1px solid #393941;border-radius:10px;background:#09090c}
+.ratioBtn{
+  min-height:36px;padding:0 13px;border:0;border-radius:7px;background:transparent;
+  color:var(--muted);font-weight:850;cursor:pointer
+}
+.ratioBtn.active{background:var(--yellow);color:#080808}
+.bpmResult{
+  direction:ltr;display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:13px;border:1px solid #303038;border-radius:12px;background:#09090c;
+  font:850 14px ui-monospace,SFMono-Regular,monospace
+}
+.bpmResult strong{font-size:20px;color:#fff}.bpmResult .ratioArrow{color:var(--yellow)}
+.exampleNote{
+  margin-top:10px;text-align:center;color:#92929c;font-size:12px;font-weight:700
+}
+.unchanged{
+  margin-top:20px;border:2px solid rgba(244,255,0,.72);
+  border-radius:17px;padding:20px;background:
+  radial-gradient(500px 180px at 50% 0,rgba(244,255,0,.12),transparent 70%),#11110d;
+  box-shadow:0 0 28px rgba(244,255,0,.075)
+}
+.unchangedTag{
+  display:inline-flex;align-items:center;gap:7px;color:#080808;background:var(--yellow);
+  border-radius:999px;padding:6px 10px;font:900 10px ui-monospace,SFMono-Regular,monospace;
+  letter-spacing:.08em;margin-bottom:12px
+}
+.unchanged h3{font-size:clamp(23px,4vw,34px);margin:0 0 8px;font-weight:950}
+.unchanged p{margin:0;color:#e9e9dd;font-weight:720;line-height:1.55}
+.unchangedValues{
+  direction:ltr;display:flex;justify-content:center;align-items:center;gap:12px;
+  margin-top:15px;flex-wrap:wrap
+}
+.lockedBpm{
+  border:1px solid rgba(244,255,0,.38);background:#09090a;border-radius:11px;
+  padding:10px 14px;font:850 14px ui-monospace,SFMono-Regular,monospace
+}
+.lockIcon{color:var(--yellow)}
+@media(max-width:600px){
+  .bpmBuilderControls{width:100%}.bpmInputWrap{flex:1}.bpmInput{width:100%}
+  .ratioToggle{width:100%}.ratioBtn{flex:1}
+}
+</style>
+
+
+<style>
+/* Clearer phrase blocks in the comparison section */
+.miniTimeline{
+  direction:ltr;
+  height:92px;
+  gap:6px;
+  padding:6px;
+  border:1px solid #41414a;
+  border-radius:13px;
+  overflow:hidden;
+  background:#090a0d;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.miniBar{
+  position:relative;
+  overflow:hidden;
+  border:1px solid #3e3f48;
+  border-radius:8px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:0 7px 10px;
+  color:#f1f1f4;
+  font-size:12px;
+  font-weight:900;
+  isolation:isolate;
+}
+.miniBar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(25% - 1px),
+      rgba(255,255,255,.10) calc(25% - 1px),
+      rgba(255,255,255,.10) 25%
+    );
+}
+.miniBar::after{
+  content:attr(data-count);
+  position:absolute;
+  top:8px;
+  left:8px;
+  min-width:22px;
+  height:22px;
+  padding:0 5px;
+  border-radius:6px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.17);
+  background:rgba(5,6,9,.78);
+  color:#fff;
+  font:900 11px ui-monospace,SFMono-Regular,monospace;
+  box-shadow:0 5px 12px rgba(0,0,0,.28);
+}
+.normalMini .miniBar{
+  background:
+    linear-gradient(180deg,rgba(66,217,255,.16),rgba(66,217,255,.035)),
+    #101319;
+  border-color:rgba(66,217,255,.28);
+}
+.halfMini .miniBar{
+  background:
+    linear-gradient(180deg,rgba(255,155,66,.18),rgba(255,155,66,.04)),
+    #17120e;
+  border-color:rgba(255,155,66,.34);
+}
+.modeCard:not(.dim) .miniBar{
+  box-shadow:inset 0 0 20px rgba(255,255,255,.025),0 0 15px rgba(66,217,255,.035);
+}
+.modeCard:not(.dim) .halfMini .miniBar{
+  box-shadow:inset 0 0 20px rgba(255,255,255,.025),0 0 15px rgba(255,155,66,.045);
+}
+.modeTitle span{
+  padding:5px 8px;
+  border:1px solid #3d3d45;
+  border-radius:7px;
+  background:#090a0d;
+  color:#fff;
+}
+.currentPairNote{
+  color:var(--yellow)!important;
+  font-weight:850!important;
+}
+@media(max-width:520px){
+  .miniTimeline{height:82px;gap:4px;padding:4px}
+  .miniBar{padding-bottom:8px;font-size:11px}
+  .miniBar::after{top:6px;left:6px}
+}
+</style>
+
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">JM</div><div class="brandText"><b>Just Music</b><span>INTERACTIVE DJ TOOLS</span></div></div>
+    <div class="langSwitch" aria-label="Language"><button class="langBtn active" data-lang="he">HE</button><button class="langBtn" data-lang="ar">AR</button></div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">HALF BPM MIX · STRUCTURE FIRST</div>
+    <h1 data-i18n="title">זה לא מיקס חדש.</h1>
+    <p data-i18n="heroText">זו אותה טכניקת SCMT שכבר למדתם. רק ספירת המבנה משתנה כששיר אחד מתנגן בחצי מה־BPM של השני.</p>
+    <div class="problem"><i></i><span data-i18n="problem">140 ו־70 הם רק דוגמה. העיקרון עובד עם כל שני שירים שנמצאים ביחס חצי או כפול.</span></div>
+  </section>
+
+  <section class="section" id="demo">
+    <div class="sectionHead"><div><div class="stepTag">01 · SEE IT</div><h2 data-i18n="seeTitle">תראו מה באמת קורה בזמן</h2><p data-i18n="seeSub">שני הטיימליינים רצים באותו אורך בדיוק.</p></div></div>
+    <div class="bpmBuilder">
+      <div class="bpmBuilderTop">
+        <div>
+          <div class="bpmBuilderTitle" data-i18n="builderTitle">בחרו BPM ובנו את הזוג בעצמכם</div>
+          <div class="bpmBuilderHint" data-i18n="builderHint">הזינו BPM אחד. המערכת תחשב את השיר השני ותבנה מחדש את הגריד.</div>
+        </div>
+        <div class="bpmBuilderControls">
+          <div class="bpmInputWrap">
+            <label for="baseBpm" data-i18n="baseBpmLabel">BPM שהזנתם</label>
+            <input class="bpmInput" id="baseBpm" type="number" min="40" max="200" step="1" value="140" inputmode="numeric">
+          </div>
+          <div class="ratioToggle" aria-label="Half or double">
+            <button class="ratioBtn active" id="ratioHalf" data-ratio="half" data-i18n="makeHalf">חשב חצי</button>
+            <button class="ratioBtn" id="ratioDouble" data-ratio="double" data-i18n="makeDouble">חשב כפול</button>
+          </div>
+        </div>
+      </div>
+      <div class="bpmResult">
+        <strong id="builderBase">140 BPM</strong>
+        <span class="ratioArrow">↔</span>
+        <strong id="builderPair">70 BPM</strong>
+      </div>
+      <div class="exampleNote currentPairNote" id="currentPairNote">הזוג שנבחר כרגע: 140 ↔ 70 BPM</div>
+    </div>
+    <div class="transformControls">
+      <button class="transformBtn" id="mainModeBtn" data-i18n="toHalf">הפכו ל־Half BPM</button>
+      <span class="modeStatus" id="mainModeStatus">NORMAL · 140 ↔ 140</span>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="playBtn" data-i18n="play">▶ נגן</button>
+      <button class="btn" id="pauseBtn" data-i18n="pause">Ⅱ עצור</button>
+      <button class="btn" id="resetBtn" data-i18n="reset">↺ איפוס</button>
+      <button class="btn" id="soundBtn" data-i18n="soundOn">♫ צליל: פעיל</button>
+      <div class="readout"><span id="timeReadout">00.0</span> / 06.9 SEC</div>
+    </div>
+    <div class="visualizer" id="visualizer">
+      <div class="playhead" id="playhead"></div>
+      <div class="track fast">
+        <div class="trackTop"><div class="trackName"><span class="dot"></span><span data-i18n="fastSong">השיר המהיר</span></div><div class="bpm" id="fastBpmLabel">140 BPM · 4 BARS</div></div>
+        <div class="barline" id="fastBarline">
+          <div class="phrase" data-bar="0" data-i18n="bar1">בית 1</div><div class="phrase" data-bar="1" data-i18n="bar2">בית 2</div><div class="phrase" data-bar="2" data-i18n="bar3">בית 3</div><div class="phrase" data-bar="3" data-i18n="bar4">בית 4</div>
+          <div class="beats" id="fastBeats"></div>
+        </div>
+      </div>
+      <div class="track slow normalMode" id="slowTrack">
+        <div class="trackTop"><div class="trackName"><span class="dot"></span><span data-i18n="slowSong">השיר האיטי</span></div><div class="bpm" id="slowBpmLabel">140 BPM · 4 BARS</div></div>
+        <div class="barline" id="slowBarline">
+          <div class="beats" id="slowBeats"></div>
+        </div>
+      </div>
+    </div>
+    <div class="equation" id="equation"><div class="eqBlock"><b>4</b><span id="fastEqLabel">בתים ב־140 BPM</span></div><div class="equals">=</div><div class="eqBlock"><b id="slowEqNumber">4</b><span id="slowEqLabel">בתים ב־140 BPM</span></div></div>
+    <div class="message" id="message" data-i18n="pressPlay">לחצו Play ותנו לעיניים לספור.</div>
+  </section>
+
+  <section class="section">
+    <div class="sectionHead"><div><div class="stepTag">02 · COMPARE</div><h2 data-i18n="compareTitle">אותו זמן. ספירה אחרת.</h2><p data-i18n="compareSub">החליפו בין Beat Mix רגיל ל־Half BPM.</p></div></div>
+    <div class="controls"><button class="btn active" id="normalMode" data-i18n="normal">Beat Mix רגיל</button><button class="btn" id="halfMode">Half BPM</button></div>
+    <div class="modeWrap">
+      <div class="modeCard" id="normalCard"><div class="modeTitle"><b data-i18n="normal">Beat Mix רגיל</b><span id="normalPairLabel">140 ↔ 140</span></div><div class="miniTimeline normalMini"><div class="miniBar" data-count="1" data-i18n="bar1">בית 1</div><div class="miniBar" data-count="2" data-i18n="bar2">בית 2</div><div class="miniBar" data-count="3" data-i18n="bar3">בית 3</div><div class="miniBar" data-count="4" data-i18n="bar4">בית 4</div></div></div>
+      <div class="modeCard dim" id="halfCard"><div class="modeTitle"><b>Half BPM</b><span id="halfPairLabel">140 ↔ 70</span></div><div class="miniTimeline halfMini"><div class="miniBar" data-count="1" data-i18n="bar1">בית 1</div><div class="miniBar" data-count="2" data-i18n="bar2">בית 2</div></div></div>
+    </div>
+    <div class="insight"><div class="insightIcon">↔</div><p id="compareInsight" data-i18n="normalInsight"><strong>במיקס רגיל:</strong> ארבעה בתים מול ארבעה בתים.</p></div>
+  </section>
+
+  <section class="section">
+    <div class="sectionHead"><div><div class="stepTag">03 · CONNECT</div><h2 data-i18n="connectTitle">ה־SCMT לא השתנה</h2><p data-i18n="connectSub">אותן פעולות, באותן נקודות יחסיות בתוך המיקס.</p></div></div>
+    <div class="workflow" id="workflow">
+      <div class="stage active"><small data-i18n="stage1small">תחילת המיקס</small><b data-i18n="stage1">כניסת שיר B</b><em>0%</em></div>
+      <div class="stage"><small data-i18n="stage2small">בניית החיבור</small><b data-i18n="stage2">פיידר עולה</b><em>25%</em></div>
+      <div class="stage"><small data-i18n="stage3small">מרכז המיקס</small><b data-i18n="stage3">Bass Swap</b><em>50%</em></div>
+      <div class="stage"><small data-i18n="stage4small">סיום המיקס</small><b data-i18n="stage4">FX + יציאת A</b><em>75–100%</em></div>
+    </div>
+    <div class="unchanged">
+      <div class="unchangedTag" data-i18n="importantTag">הדבר החשוב ביותר</div>
+      <h3 data-i18n="unchangedTitle">ה־BPM לא משתנה במהלך המיקס.</h3>
+      <p data-i18n="unchangedText">לא מאטים ולא מאיצים אף שיר. בוחרים מראש שני שירים שה־BPM שלהם נמצא ביחס חצי או כפול — ורק מתאימים את ספירת המבנה.</p>
+      <div class="unchangedValues">
+        <div class="lockedBpm"><span class="lockIcon">●</span> <span id="lockedFast">140 BPM</span></div>
+        <div class="lockedBpm"><span class="lockIcon">●</span> <span id="lockedSlow">70 BPM</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="footer">JUST MUSIC · HALF BPM MIX · V1.3</div>
+</main>
+<script>
+const I18N={
+he:{dir:'rtl',title:'זה לא מיקס חדש.',heroText:'זו אותה טכניקת SCMT שכבר למדתם. רק ספירת המבנה משתנה כששיר אחד מתנגן בחצי מה־BPM של השני.',problem:'140 ו־70 הם רק דוגמה. העיקרון עובד עם כל שני שירים שנמצאים ביחס חצי או כפול.',seeTitle:'תראו מה באמת קורה בזמן',seeSub:'שני הטיימליינים רצים באותו אורך בדיוק.',play:'▶ נגן',pause:'Ⅱ עצור',reset:'↺ איפוס',soundOn:'♫ צליל: פעיל',soundOff:'♫ צליל: כבוי',fastSong:'השיר המהיר',slowSong:'השיר האיטי',bar1:'בית 1',bar2:'בית 2',bar3:'בית 3',bar4:'בית 4',fastBars:'בתים ב־140 BPM',slowBars:'בתים ב־70 BPM',pressPlay:'לחצו Play וראו איך שני השירים נספרים יחד.',toHalf:'הפכו ל־Half BPM',toNormal:'חזרו למיקס רגיל',normalReady:'כרגע שני השירים שווים: 140 מול 140.',halfReady:'עכשיו שיר אחד ירד לחצי BPM — והמבנה שלו נספר אחרת.',playing:'שימו לב: כל Beat איטי נופל על כל Beat שני של השיר המהיר.',ahaMsg:'בדיוק באותו רגע: 4 בתים מהירים = 2 בתים איטיים.',compareTitle:'אותו זמן. ספירה אחרת.',compareSub:'החליפו בין Beat Mix רגיל ל־Half BPM.',normal:'Beat Mix רגיל',normalInsight:'<strong>במיקס רגיל:</strong> ארבעה בתים מול ארבעה בתים.',halfInsight:'<strong>ב־Half BPM:</strong> ארבעה בתים מהירים מול שני בתים איטיים — אבל נקודת הסיום זהה.',connectTitle:'ה־SCMT לא השתנה',connectSub:'אותן פעולות, באותן נקודות יחסיות בתוך המיקס.',stage1small:'תחילת המיקס',stage1:'כניסת שיר B',stage2small:'בניית החיבור',stage2:'פיידר עולה',stage3small:'מרכז המיקס',stage3:'Bass Swap',stage4small:'סיום המיקס',stage4:'FX + יציאת A'},
+ar:{dir:'rtl',title:'هذا ليس ميكس جديدًا.',heroText:'إنها نفس تقنية SCMT التي تعلمتموها. الذي يتغيّر فقط هو عدّ الجمل عندما تعمل أغنية بنصف سرعة BPM للأخرى.',problem:'140 و70 مجرد مثال. المبدأ يعمل مع أي أغنيتين بين سرعتيهما علاقة النصف أو الضعف.',builderTitle:'اختاروا BPM وابنوا الزوج بأنفسكم',builderHint:'أدخلوا قيمة BPM واحدة. ستحسب الأداة الأغنية الثانية وتعيد بناء الشبكة.',baseBpmLabel:'قيمة BPM المدخلة',makeHalf:'احسب النصف',makeDouble:'احسب الضعف',exampleOnly:'140 ↔ 70 مجرد مثال — وليس قاعدة ثابتة.',importantTag:'الأهم',unchangedTitle:'قيمة الـBPM لا تتغير أثناء الميكس.',unchangedText:'لا نبطئ ولا نسرّع أي أغنية. نختار مسبقًا أغنيتين بين سرعتيهما علاقة النصف أو الضعف، ونغيّر فقط طريقة عدّ البنية.',seeTitle:'شاهدوا ما يحدث فعليًا في الزمن',seeSub:'الخطان الزمنيان يمتدان لنفس المدة تمامًا.',play:'▶ تشغيل',pause:'Ⅱ إيقاف',reset:'↺ إعادة',soundOn:'♫ الصوت: يعمل',soundOff:'♫ الصوت: مغلق',fastSong:'الأغنية السريعة',slowSong:'الأغنية البطيئة',bar1:'جملة 1',bar2:'جملة 2',bar3:'جملة 3',bar4:'جملة 4',fastBars:'جمل على 140 BPM',slowBars:'جمل على 70 BPM',pressPlay:'اضغطوا Play وشاهدوا كيف يتم عدّ الأغنيتين معًا.',toHalf:'حوّلوا إلى Half BPM',toNormal:'العودة إلى الميكس العادي',normalReady:'حاليًا الأغنيتان متساويتان: 140 مقابل 140.',halfReady:'الآن انخفضت إحدى الأغنيتين إلى نصف الـBPM — لذلك يتغيّر عدّ البنية.',playing:'لاحظوا: كل Beat بطيء يقع على كل Beat ثانٍ في الأغنية السريعة.',ahaMsg:'في اللحظة نفسها تمامًا: 4 جمل سريعة = جملتان بطيئتان.',compareTitle:'نفس الزمن. عدّ مختلف.',compareSub:'بدّلوا بين Beat Mix عادي وHalf BPM.',normal:'Beat Mix عادي',normalInsight:'<strong>في الميكس العادي:</strong> أربع جمل مقابل أربع جمل.',halfInsight:'<strong>في Half BPM:</strong> أربع جمل سريعة مقابل جملتين بطيئتين — لكن نقطة النهاية واحدة.',connectTitle:'الـSCMT لم يتغيّر',connectSub:'نفس الخطوات، في نفس المواقع النسبية داخل الميكس.',stage1small:'بداية الميكس',stage1:'دخول أغنية B',stage2small:'بناء الدمج',stage2:'رفع الفيدر',stage3small:'منتصف الميكس',stage3:'Bass Swap',stage4small:'نهاية الميكس',stage4:'FX + خروج A'}
+};
+let lang='he',baseBpm=140,pairBpm=70,fastBpm=140,slowBpm=70,ratioMode='half',duration=16*(60/140),progress=0,running=false,startStamp=0,raf=0,sound=true,audioCtx=null,lastFast=-1,lastSlow=-1,halfModeMain=false;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const playhead=$('#playhead'),message=$('#message'),equation=$('#equation'),timeReadout=$('#timeReadout');
+function buildTrack(containerId,beatCount,barCount){
+  const barline=$(containerId);barline.querySelectorAll('.phrase').forEach(n=>n.remove());
+  const beats=barline.querySelector('.beats');beats.innerHTML='';
+  barline.style.gridTemplateColumns=`repeat(${barCount},1fr)`;
+  beats.style.gridTemplateColumns=`repeat(${beatCount},1fr)`;
+  for(let i=0;i<barCount;i++){const p=document.createElement('div');p.className='phrase';p.dataset.bar=i;p.dataset.i18n='bar'+(i+1);p.textContent=I18N[lang]['bar'+(i+1)];barline.insertBefore(p,beats)}
+  for(let i=0;i<beatCount;i++){const d=document.createElement('div');d.className='beat'+(i%4===0?' major':'');d.dataset.i=i;beats.appendChild(d)}
+}
+function makeBeats(){buildTrack('#fastBarline',16,4);buildTrack('#slowBarline',16,4)}
+makeBeats();
+function setLang(l){lang=l;const t=I18N[l];document.documentElement.lang=l;document.documentElement.dir=t.dir;$$('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(t[k]!=null){if(k==='normalInsight'||k==='halfInsight')el.innerHTML=t[k];else el.textContent=t[k]}});$$('.langBtn').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));updateMessage();updateSoundButton();updateCompare();updateMainMode(false);updateDynamicLabels()}
+function updateSoundButton(){$('#soundBtn').textContent=I18N[lang][sound?'soundOn':'soundOff']}
+function updateMessage(){
+  const p=bpmPair();
+  let value;
+  if(progress>=.999){
+    value=halfModeMain
+      ? (lang==='he'
+          ? `בדיוק באותו רגע: 4 בתים ב־${p.fast} BPM = 2 בתים ב־${p.slow} BPM.`
+          : `في اللحظة نفسها: 4 جمل على ${p.fast} BPM = جملتان على ${p.slow} BPM.`)
+      : (lang==='he'
+          ? `שני השירים מסיימים יחד: 4 בתים ב־${p.fast} BPM מול 4 בתים ב־${p.fast} BPM.`
+          : `تنتهي الأغنيتان معًا: 4 جمل على ${p.fast} BPM مقابل 4 جمل على ${p.fast} BPM.`);
+  }else if(running){
+    value=halfModeMain
+      ? (lang==='he'
+          ? `כל Beat של ${p.slow} BPM נופל על כל Beat שני של ${p.fast} BPM.`
+          : `كل Beat على ${p.slow} BPM يقع على كل Beat ثانٍ من ${p.fast} BPM.`)
+      : (lang==='he'
+          ? `שני השירים רצים יחד ב־${p.fast} BPM.`
+          : `الأغنيتان تعملان معًا على ${p.fast} BPM.`);
+  }else{
+    value=halfModeMain
+      ? (lang==='he'
+          ? `הזוג שנבחר: ${p.fast} BPM מול ${p.slow} BPM. המבנה נספר 4 בתים מול 2.`
+          : `الزوج المختار: ${p.fast} BPM مقابل ${p.slow} BPM. العدّ هو 4 جمل مقابل جملتين.`)
+      : (lang==='he'
+          ? `מצב רגיל: ${p.fast} BPM מול ${p.fast} BPM — 4 בתים מול 4.`
+          : `الوضع العادي: ${p.fast} BPM مقابل ${p.fast} BPM — 4 جمل مقابل 4.`);
+  }
+  message.textContent=value;
+  message.classList.toggle('aha',progress>=.999&&halfModeMain);
+}
+function initAudio(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}
+function clickTone(freq,vol=.06,dur=.045){if(!sound)return;initAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}
+
+function fmtBpm(n){
+  return Number.isInteger(n)?String(n):String(Math.round(n*10)/10);
+}
+function bpmPair(){
+  pairBpm=ratioMode==='half'?baseBpm/2:baseBpm*2;
+  fastBpm=Math.max(baseBpm,pairBpm);
+  slowBpm=Math.min(baseBpm,pairBpm);
+  duration=16*(60/fastBpm);
+  return {base:fmtBpm(baseBpm),pair:fmtBpm(pairBpm),fast:fmtBpm(fastBpm),slow:fmtBpm(slowBpm)};
+}
+function updateDynamicLabels(){
+  const p=bpmPair();
+  $('#builderBase').textContent=p.base+' BPM';
+  $('#builderPair').textContent=p.pair+' BPM';
+  $('#fastBpmLabel').textContent=p.fast+' BPM · 4 BARS';
+  $('#slowBpmLabel').textContent=(halfModeMain?p.slow:p.fast)+' BPM · '+(halfModeMain?'2':'4')+' BARS';
+  $('#fastEqLabel').textContent=(lang==='he'?'בתים ב־':'جمل على ')+p.fast+' BPM';
+  $('#slowEqLabel').textContent=(lang==='he'?'בתים ב־':'جمل على ')+(halfModeMain?p.slow:p.fast)+' BPM';
+  $('#mainModeStatus').textContent=halfModeMain?'HALF BPM · '+p.fast+' ↔ '+p.slow:'NORMAL · '+p.fast+' ↔ '+p.fast;
+  $('#normalPairLabel').textContent=p.fast+' ↔ '+p.fast;
+  $('#halfPairLabel').textContent=p.fast+' ↔ '+p.slow;
+  $('#lockedFast').textContent=p.fast+' BPM';
+  $('#lockedSlow').textContent=p.slow+' BPM';
+  $('#currentPairNote').textContent=lang==='he'
+    ? `הזוג שנבחר כרגע: ${p.fast} ↔ ${p.slow} BPM`
+    : `الزوج المختار حاليًا: ${p.fast} ↔ ${p.slow} BPM`;
+  const half=$('#halfMode').classList.contains('active');
+  $('#compareInsight').innerHTML=half
+    ? (lang==='he'
+        ? `<strong>ב־Half BPM:</strong> 4 בתים ב־${p.fast} BPM מול 2 בתים ב־${p.slow} BPM — נקודת הסיום זהה.`
+        : `<strong>في Half BPM:</strong> 4 جمل على ${p.fast} BPM مقابل جملتين على ${p.slow} BPM — ونقطة النهاية واحدة.`)
+    : (lang==='he'
+        ? `<strong>במיקס רגיל:</strong> 4 בתים ב־${p.fast} BPM מול 4 בתים ב־${p.fast} BPM.`
+        : `<strong>في الميكس العادي:</strong> 4 جمل على ${p.fast} BPM مقابل 4 جمل على ${p.fast} BPM.`);
+  const total=document.querySelector('.readout');
+  if(total) total.lastChild.textContent=' / '+duration.toFixed(1)+' SEC';
+}
+function applyBpmInput(){
+  const input=$('#baseBpm');
+  let value=Number(input.value);
+  if(!Number.isFinite(value)) value=140;
+  value=Math.max(40,Math.min(200,value));
+  baseBpm=value;
+  input.value=fmtBpm(value);
+  reset();
+  updateMainMode(false);
+}
+
+function updateMainMode(resetPlayback=true){
+  if(resetPlayback)reset();
+  const slowBars=halfModeMain?2:4,slowBeatCount=halfModeMain?8:16;
+  buildTrack('#slowBarline',slowBeatCount,slowBars);
+  $('#slowTrack').classList.toggle('normalMode',!halfModeMain);
+  updateDynamicLabels();
+  $('#slowEqNumber').textContent=halfModeMain?'2':'4';
+  
+  $('#mainModeBtn').textContent=I18N[lang][halfModeMain?'toNormal':'toHalf'];
+  $('#mainModeBtn').classList.toggle('half',halfModeMain);
+  updateDynamicLabels();
+  message.textContent=I18N[lang][halfModeMain?'halfReady':'normalReady'];
+  $('#normalMode').classList.toggle('active',!halfModeMain);$('#halfMode').classList.toggle('active',halfModeMain);updateCompare();
+}
+function render(){
+  progress=Math.max(0,Math.min(1,progress));playhead.style.left=(progress*100)+'%';timeReadout.textContent=(progress*duration).toFixed(1).padStart(4,'0');
+  const slowBeatCount=halfModeMain?8:16,slowBarCount=halfModeMain?2:4;const fi=Math.min(15,Math.floor(progress*16)),si=Math.min(slowBeatCount-1,Math.floor(progress*slowBeatCount));
+  $$('#fastBeats .beat').forEach((b,i)=>b.classList.toggle('hit',running&&i===fi));$$('#slowBeats .beat').forEach((b,i)=>b.classList.toggle('hit',running&&i===si));
+  $$('#fastBarline .phrase').forEach((b,i)=>b.classList.toggle('complete',progress>=(i+1)/4));$$('#slowBarline .phrase').forEach((b,i)=>b.classList.toggle('complete',progress>=(i+1)/slowBarCount));
+  equation.classList.toggle('aha',progress>=.999);const stage=Math.min(3,Math.floor(progress*4));$$('.stage').forEach((s,i)=>s.classList.toggle('active',i===stage));
+  if(running&&fi!==lastFast){clickTone(fi%4===0?780:520,.04);lastFast=fi}if(running&&si!==lastSlow){clickTone(halfModeMain?(si%4===0?180:140):(si%4===0?720:480),halfModeMain?.075:.035,halfModeMain?.07:.04);lastSlow=si}
+  updateMessage();
+}
+function tick(ts){if(!running)return;progress=Math.min(1,(ts-startStamp)/1000/duration);render();if(progress>=1){running=false;render();return}raf=requestAnimationFrame(tick)}
+function play(){if(progress>=.999)progress=0;initAudio();running=true;startStamp=performance.now()-progress*duration*1000;lastFast=-1;lastSlow=-1;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);render()}
+function pause(){running=false;cancelAnimationFrame(raf);render()}
+function reset(){pause();progress=0;lastFast=-1;lastSlow=-1;render()}
+$('#playBtn').onclick=play;$('#pauseBtn').onclick=pause;$('#resetBtn').onclick=reset;$('#soundBtn').onclick=()=>{sound=!sound;if(sound)initAudio();updateSoundButton()};
+$$('.langBtn').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+function updateCompare(){const half=$('#halfMode').classList.contains('active');$('#normalCard').classList.toggle('dim',half);$('#halfCard').classList.toggle('dim',!half);updateDynamicLabels()}
+$('#normalMode').onclick=()=>{halfModeMain=false;updateMainMode()};
+$('#halfMode').onclick=()=>{halfModeMain=true;updateMainMode()};
+$('#mainModeBtn').onclick=()=>{halfModeMain=!halfModeMain;updateMainMode()};
+
+$('#baseBpm').addEventListener('input',()=>{
+  const value=Number($('#baseBpm').value);
+  if(Number.isFinite(value)&&value>=40&&value<=200){
+    baseBpm=value;
+    reset();
+    updateMainMode(false);
+  }
+});
+$('#baseBpm').addEventListener('change',applyBpmInput);
+$('#baseBpm').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyBpmInput();}});
+$$('.ratioBtn').forEach(btn=>btn.onclick=()=>{
+  ratioMode=btn.dataset.ratio;
+  $$('.ratioBtn').forEach(b=>b.classList.toggle('active',b===btn));
+  applyBpmInput();
+});
+
+render();setLang('he');
+</script>
+</body>
+</html>
