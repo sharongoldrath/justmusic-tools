@@ -31,7 +31,92 @@ body{
   background-size:auto,auto,42px 42px,42px 42px,auto;
 }
 button,a{font:inherit}
+button{cursor:pointer}
 a{color:inherit;text-decoration:none}
+
+/* Login */
+.login-wrap{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+.login-shell{
+  width:min(560px,92vw);
+  border:2px solid #fff;
+  background:#0d0d0d;
+  box-shadow:14px 14px 0 rgba(255,255,255,.08);
+  padding:34px;
+  position:relative;
+  overflow:hidden;
+}
+.login-shell::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(125deg,transparent 0 72%,rgba(244,255,0,.08) 72% 75%,transparent 75%);
+}
+.login-shell .kicker{
+  font:700 11px monospace;
+  letter-spacing:.2em;
+  color:var(--yellow);
+  margin-bottom:12px;
+  position:relative;
+}
+.login-title{
+  margin:0;
+  font-size:clamp(42px,9vw,78px);
+  line-height:.95;
+  letter-spacing:-.04em;
+  position:relative;
+}
+.login-sub{
+  color:var(--muted);
+  font-weight:700;
+  margin:14px 0 26px;
+  position:relative;
+}
+.login-shell label{
+  display:block;
+  font-weight:800;
+  margin-bottom:8px;
+  position:relative;
+}
+#password{
+  width:100%;
+  padding:15px 16px;
+  background:#050505;
+  color:#fff;
+  border:1px solid #666;
+  font-size:18px;
+  outline:none;
+  position:relative;
+}
+#password:focus{
+  border-color:var(--yellow);
+  box-shadow:0 0 0 3px rgba(244,255,0,.12);
+}
+#loginBtn{
+  width:100%;
+  margin-top:14px;
+  padding:15px;
+  border:0;
+  background:var(--yellow);
+  color:#080808;
+  font-weight:800;
+  transition:.16s;
+}
+#loginBtn:hover{
+  transform:translateY(-2px);
+  box-shadow:6px 6px 0 rgba(244,255,0,.2);
+}
+#error{
+  display:none;
+  color:var(--pink);
+  font-weight:800;
+  margin-top:12px;
+}
+
+/* Learning hub */
+#learningHub{display:none}
 .wrap{width:min(1100px,92vw);margin:auto;padding:54px 0 70px}
 .hero{
   border:2px solid #fff;
@@ -110,7 +195,21 @@ h1{margin:0;font-size:clamp(44px,8vw,88px);line-height:.9;letter-spacing:-.045em
 </style>
 </head>
 <body>
-<main class="wrap">
+
+<section id="loginScreen" class="login-wrap">
+  <main class="login-shell">
+    <div class="kicker">JUST MUSIC · INTERACTIVE LEARNING TOOLS</div>
+    <h1 class="login-title">JUST<br>MUSIC</h1>
+    <p class="login-sub">כניסה לכלי הלימוד האינטראקטיביים</p>
+
+    <label for="password">סיסמה</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="הקלד סיסמה">
+    <button id="loginBtn" type="button">כניסה</button>
+    <div id="error" role="alert">הסיסמה אינה נכונה</div>
+  </main>
+</section>
+
+<main id="learningHub" class="wrap">
   <section class="hero">
     <div class="kicker">JUST MUSIC · INTERACTIVE LEARNING LAB</div>
     <h1>DJ<br>LEARNING LAB</h1>
@@ -154,5 +253,38 @@ h1{margin:0;font-size:clamp(44px,8vw,88px);line-height:.9;letter-spacing:-.045em
 
   <div class="note">JUST MUSIC · DJ COURSE TOOLS</div>
 </main>
+
+<script>
+const PASSWORD = "sharon";
+
+function showLearningHub() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("learningHub").style.display = "block";
+}
+
+function login() {
+  const field = document.getElementById("password");
+  const error = document.getElementById("error");
+
+  if (field.value === PASSWORD) {
+    sessionStorage.setItem("jm_authenticated", "1");
+    error.style.display = "none";
+    showLearningHub();
+  } else {
+    error.style.display = "block";
+    field.select();
+  }
+}
+
+document.getElementById("loginBtn").addEventListener("click", login);
+
+document.getElementById("password").addEventListener("keydown", event => {
+  if (event.key === "Enter") login();
+});
+
+if (sessionStorage.getItem("jm_authenticated") === "1") {
+  showLearningHub();
+}
+</script>
 </body>
 </html>
