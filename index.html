@@ -60,7 +60,7 @@ h1{margin:0;font-size:clamp(44px,8vw,88px);line-height:.9;letter-spacing:-.045em
 .tool-card.available:hover{transform:translateY(-5px);border-color:var(--blue);box-shadow:10px 10px 0 rgba(61,126,255,.2)}
 .tool-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;background:repeating-linear-gradient(115deg,rgba(255,255,255,.025) 0 2px,transparent 2px 8px)}
 .card-top,.card-body,.card-footer{position:relative}
-.card-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card-top{display:flex;justify-content:flex-end;align-items:center;gap:12px}
 .number{font:800 12px monospace;color:var(--muted);letter-spacing:.12em}
 .status{font:800 11px monospace;padding:6px 9px;border:1px solid var(--line);border-radius:999px}
 .status.live{color:var(--yellow);border-color:rgba(244,255,0,.6);background:rgba(244,255,0,.07)}
@@ -104,9 +104,7 @@ h1{margin:0;font-size:clamp(44px,8vw,88px);line-height:.9;letter-spacing:-.045em
   <section class="tools" aria-label="רשימת הלומדות">
     <a class="tool-card available" href="scmt.html">
       <div class="card-top">
-        <span class="number">MODULE 01</span>
-        <span class="status live">AVAILABLE</span>
-      </div>
+        </div>
       <div class="card-body">
         <div class="icon">SCMT</div>
         <h3>מבנה שיר ותזמון מיקס</h3>
@@ -120,13 +118,25 @@ h1{margin:0;font-size:clamp(44px,8vw,88px);line-height:.9;letter-spacing:-.045em
 
     <a class="tool-card available" href="waveform.html">
       <div class="card-top">
-        <span class="number">MODULE 02</span>
-        <span class="status live">AVAILABLE</span>
-      </div>
+        </div>
       <div class="card-body">
         <div class="icon">W/G</div>
         <h3>Waveform & Grid</h3>
         <p>הבנת ה־Waveform, תחומי התדרים והקשר בין הגריד למבנה ולתזמון של השיר.</p>
+      </div>
+      <div class="card-footer">
+        <span class="open">פתיחת הלומדה</span>
+        <span class="arrow">←</span>
+      </div>
+    </a>
+
+    <a class="tool-card available" href="halfbpmmix.html">
+      <div class="card-top">
+        </div>
+      <div class="card-body">
+        <div class="icon">HB</div>
+        <h3>Half BPM Mix</h3>
+        <p>הבנת הקשר בין קצבים בחצי ובכפול BPM, וזיהוי מתי שני שירים יכולים להתחבר למרות שמספרי ה־BPM שלהם שונים.</p>
       </div>
       <div class="card-footer">
         <span class="open">פתיחת הלומדה</span>
